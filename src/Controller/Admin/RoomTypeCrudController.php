@@ -83,7 +83,7 @@ class RoomTypeCrudController extends AbstractCrudController
     {
         $request = $this->requestStack->getCurrentRequest();
 
-        yield FormField::addPanel('基本信息')->setIcon('fa fa-bed');
+        yield FormField::addFieldset('基本信息')->setIcon('fa fa-bed');
 
         yield IdField::new('id', 'ID')
             ->onlyOnIndex();
@@ -129,13 +129,13 @@ class RoomTypeCrudController extends AbstractCrudController
             ->setColumns(4)
             ->setRequired(true);
 
-        yield FormField::addPanel('详情描述')->setIcon('fa fa-align-left');
+        yield FormField::addFieldset('详情描述')->setIcon('fa fa-align-left');
 
         yield TextareaField::new('description', '房型描述')
             ->setColumns(12)
             ->hideOnIndex();
 
-        yield FormField::addPanel('系统信息')->setIcon('fa fa-info-circle')
+        yield FormField::addFieldset('系统信息')->setIcon('fa fa-info-circle')
             ->hideOnForm();
 
         yield DateTimeField::new('createTime', '创建时间')

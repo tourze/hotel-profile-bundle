@@ -108,7 +108,7 @@ class HotelCrudController extends AbstractCrudController
     {
         $request = $this->requestStack->getCurrentRequest();
 
-        yield FormField::addPanel('基本信息')->setIcon('fa fa-hotel');
+        yield FormField::addFieldset('基本信息')->setIcon('fa fa-hotel');
 
         yield IdField::new('id', 'ID')
             ->onlyOnIndex();
@@ -138,7 +138,7 @@ class HotelCrudController extends AbstractCrudController
             ->setColumns(12)
             ->setRequired(true);
 
-        yield FormField::addPanel('联系信息')->setIcon('fa fa-address-book');
+        yield FormField::addFieldset('联系信息')->setIcon('fa fa-address-book');
 
         yield TextField::new('contactPerson', '联系人')
             ->setColumns(6)
@@ -162,20 +162,20 @@ class HotelCrudController extends AbstractCrudController
                 HotelStatusEnum::SUSPENDED->value => 'danger',
             ]);
 
-        yield FormField::addPanel('设施与服务')->setIcon('fa fa-concierge-bell');
+        yield FormField::addFieldset('设施与服务')->setIcon('fa fa-concierge-bell');
 
         yield ArrayField::new('facilities', '设施与服务')
             ->setColumns(12)
             ->setHelp('添加酒店拥有的设施和服务，如：餐厅、游泳池、健身房、接机服务等');
 
-        yield FormField::addPanel('房型管理')->setIcon('fa fa-bed')
+        yield FormField::addFieldset('房型管理')->setIcon('fa fa-bed')
             ->hideOnForm();
 
         yield CollectionField::new('roomTypes', '房型列表')
             ->onlyOnDetail()
             ->setTemplatePath('admin/field/room_types.html.twig');
 
-        yield FormField::addPanel('系统信息')->setIcon('fa fa-info-circle')
+        yield FormField::addFieldset('系统信息')->setIcon('fa fa-info-circle')
             ->hideOnForm();
 
         yield DateTimeField::new('createTime', '创建时间')
