@@ -2,14 +2,8 @@
 
 namespace Tourze\HotelProfileBundle\Entity;
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use HotelBookingSystem\Entity\DailyInventory;
-use HotelBookingSystem\Entity\InventorySummary;
-use HotelBookingSystem\Entity\OrderItem;
-use HotelBookingSystem\Entity\PriceAdjustment;
 use Stringable;
 use Symfony\Component\Validator\Constraints as Assert;
 use Tourze\DoctrineTimestampBundle\Attribute\CreateTimeColumn;
@@ -73,26 +67,6 @@ class RoomType implements Stringable
 
     #[ORM\Column(type: Types::STRING, length: 20, enumType: RoomTypeStatusEnum::class, options: ['comment' => '状态'])]
     private RoomTypeStatusEnum $status = RoomTypeStatusEnum::ACTIVE;
-
-    #[ORM\OneToMany(mappedBy: 'roomType', targetEntity: DailyInventory::class, fetch: 'EXTRA_LAZY')]
-    private Collection $dailyInventories;
-
-    #[ORM\OneToMany(mappedBy: 'roomType', targetEntity: InventorySummary::class, fetch: 'EXTRA_LAZY')]
-    private Collection $inventorySummaries;
-
-    #[ORM\OneToMany(mappedBy: 'roomType', targetEntity: OrderItem::class, fetch: 'EXTRA_LAZY')]
-    private Collection $orderItems;
-
-    #[ORM\OneToMany(mappedBy: 'roomType', targetEntity: PriceAdjustment::class, fetch: 'EXTRA_LAZY')]
-    private Collection $priceAdjustments;
-
-    public function __construct()
-    {
-        $this->dailyInventories = new ArrayCollection();
-        $this->inventorySummaries = new ArrayCollection();
-        $this->orderItems = new ArrayCollection();
-        $this->priceAdjustments = new ArrayCollection();
-    }
 
     public function __toString(): string
     {
@@ -221,122 +195,6 @@ class RoomType implements Stringable
     public function setStatus(RoomTypeStatusEnum $status): self
     {
         $this->status = $status;
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, DailyInventory>
-     */
-    public function getDailyInventories(): Collection
-    {
-        return $this->dailyInventories;
-    }
-
-    public function addDailyInventory(DailyInventory $dailyInventory): self
-    {
-        if (!$this->dailyInventories->contains($dailyInventory)) {
-            $this->dailyInventories->add($dailyInventory);
-            $dailyInventory->setRoomType($this);
-        }
-
-        return $this;
-    }
-
-    public function removeDailyInventory(DailyInventory $dailyInventory): self
-    {
-        if ($this->dailyInventories->removeElement($dailyInventory)) {
-            if ($dailyInventory->getRoomType() === $this) {
-                $dailyInventory->setRoomType(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, InventorySummary>
-     */
-    public function getInventorySummaries(): Collection
-    {
-        return $this->inventorySummaries;
-    }
-
-    public function addInventorySummary(InventorySummary $inventorySummary): self
-    {
-        if (!$this->inventorySummaries->contains($inventorySummary)) {
-            $this->inventorySummaries->add($inventorySummary);
-            $inventorySummary->setRoomType($this);
-        }
-
-        return $this;
-    }
-
-    public function removeInventorySummary(InventorySummary $inventorySummary): self
-    {
-        if ($this->inventorySummaries->removeElement($inventorySummary)) {
-            if ($inventorySummary->getRoomType() === $this) {
-                $inventorySummary->setRoomType(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, OrderItem>
-     */
-    public function getOrderItems(): Collection
-    {
-        return $this->orderItems;
-    }
-
-    public function addOrderItem(OrderItem $orderItem): self
-    {
-        if (!$this->orderItems->contains($orderItem)) {
-            $this->orderItems->add($orderItem);
-            $orderItem->setRoomType($this);
-        }
-
-        return $this;
-    }
-
-    public function removeOrderItem(OrderItem $orderItem): self
-    {
-        if ($this->orderItems->removeElement($orderItem)) {
-            if ($orderItem->getRoomType() === $this) {
-                $orderItem->setRoomType(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, PriceAdjustment>
-     */
-    public function getPriceAdjustments(): Collection
-    {
-        return $this->priceAdjustments;
-    }
-
-    public function addPriceAdjustment(PriceAdjustment $priceAdjustment): self
-    {
-        if (!$this->priceAdjustments->contains($priceAdjustment)) {
-            $this->priceAdjustments->add($priceAdjustment);
-            $priceAdjustment->setRoomType($this);
-        }
-
-        return $this;
-    }
-
-    public function removePriceAdjustment(PriceAdjustment $priceAdjustment): self
-    {
-        if ($this->priceAdjustments->removeElement($priceAdjustment)) {
-            if ($priceAdjustment->getRoomType() === $this) {
-                $priceAdjustment->setRoomType(null);
-            }
-        }
-
         return $this;
     }
 
