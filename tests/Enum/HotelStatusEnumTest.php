@@ -74,4 +74,4 @@ class HotelStatusEnumTest extends TestCase
         $this->assertTrue($method->isPublic());
         $this->assertEquals('string', $method->getReturnType()->getName());
     }
-} 
+}

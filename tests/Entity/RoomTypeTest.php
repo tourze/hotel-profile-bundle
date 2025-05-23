@@ -20,27 +20,27 @@ class RoomTypeTest extends TestCase
     {
         $hotel = new Hotel();
         $hotel->setName('测试酒店');
-        
+
         $this->roomType->setHotel($hotel);
         $this->roomType->setName('豪华间');
-        
-        $this->assertEquals('测试酒店 - 豪华间', (string) $this->roomType);
+
+        $this->assertEquals('测试酒店 - 豪华间', (string)$this->roomType);
     }
 
     public function test_toString_withoutHotel_returnsRoomTypeName(): void
     {
         $this->roomType->setName('标准间');
-        
-        $this->assertEquals('标准间', (string) $this->roomType);
+
+        $this->assertEquals('标准间', (string)$this->roomType);
     }
 
     public function test_setHotel_andGetHotel_worksCorrectly(): void
     {
         $hotel = new Hotel();
         $hotel->setName('测试酒店');
-        
+
         $this->roomType->setHotel($hotel);
-        
+
         $this->assertEquals($hotel, $this->roomType->getHotel());
     }
 
@@ -171,7 +171,7 @@ class RoomTypeTest extends TestCase
     public function test_defaultValues_afterConstruction(): void
     {
         $roomType = new RoomType();
-        
+
         $this->assertNull($roomType->getHotel());
         $this->assertEquals('', $roomType->getName());
         $this->assertNull($roomType->getCode());
@@ -190,10 +190,10 @@ class RoomTypeTest extends TestCase
     {
         $hotel = new Hotel();
         $hotel->setName('测试酒店');
-        
+
         // 通过Hotel添加RoomType
         $hotel->addRoomType($this->roomType);
-        
+
         $this->assertEquals($hotel, $this->roomType->getHotel());
         $this->assertTrue($hotel->getRoomTypes()->contains($this->roomType));
     }
@@ -222,4 +222,4 @@ class RoomTypeTest extends TestCase
         $this->roomType->setBreakfastCount(0);
         $this->assertEquals(0, $this->roomType->getBreakfastCount());
     }
-} 
+}

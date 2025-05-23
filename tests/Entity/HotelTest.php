@@ -25,7 +25,7 @@ class HotelTest extends TestCase
     public function test_toString_returnsHotelName(): void
     {
         $this->hotel->setName('测试酒店');
-        $this->assertEquals('测试酒店', (string) $this->hotel);
+        $this->assertEquals('测试酒店', (string)$this->hotel);
     }
 
     public function test_setName_andGetName_worksCorrectly(): void
@@ -107,9 +107,9 @@ class HotelTest extends TestCase
     {
         $roomType = new RoomType();
         $roomType->setName('标准间');
-        
+
         $this->hotel->addRoomType($roomType);
-        
+
         $this->assertCount(1, $this->hotel->getRoomTypes());
         $this->assertTrue($this->hotel->getRoomTypes()->contains($roomType));
         $this->assertEquals($this->hotel, $roomType->getHotel());
@@ -119,10 +119,10 @@ class HotelTest extends TestCase
     {
         $roomType = new RoomType();
         $roomType->setName('标准间');
-        
+
         $this->hotel->addRoomType($roomType);
         $this->hotel->addRoomType($roomType);
-        
+
         $this->assertCount(1, $this->hotel->getRoomTypes());
     }
 
@@ -130,12 +130,12 @@ class HotelTest extends TestCase
     {
         $roomType = new RoomType();
         $roomType->setName('标准间');
-        
+
         $this->hotel->addRoomType($roomType);
         $this->assertCount(1, $this->hotel->getRoomTypes());
-        
+
         $this->hotel->removeRoomType($roomType);
-        
+
         $this->assertCount(0, $this->hotel->getRoomTypes());
         $this->assertNull($roomType->getHotel());
     }
@@ -146,12 +146,12 @@ class HotelTest extends TestCase
         $roomType1->setName('标准间');
         $roomType2 = new RoomType();
         $roomType2->setName('豪华间');
-        
+
         $this->hotel->addRoomType($roomType1);
         $this->assertCount(1, $this->hotel->getRoomTypes());
-        
+
         $this->hotel->removeRoomType($roomType2);
-        
+
         $this->assertCount(1, $this->hotel->getRoomTypes());
         $this->assertTrue($this->hotel->getRoomTypes()->contains($roomType1));
     }
@@ -202,7 +202,7 @@ class HotelTest extends TestCase
     public function test_defaultValues_afterConstruction(): void
     {
         $hotel = new Hotel();
-        
+
         $this->assertEquals('', $hotel->getName());
         $this->assertEquals('', $hotel->getAddress());
         $this->assertEquals(3, $hotel->getStarLevel());
@@ -215,4 +215,4 @@ class HotelTest extends TestCase
         $this->assertNull($hotel->getCreateTime());
         $this->assertNull($hotel->getUpdateTime());
     }
-} 
+}

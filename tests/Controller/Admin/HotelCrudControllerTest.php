@@ -22,7 +22,7 @@ class HotelCrudControllerTest extends TestCase
     {
         $this->requestStack = $this->createMock(RequestStack::class);
         $this->importExportService = $this->createMock(HotelImportExportService::class);
-        
+
         $this->controller = new HotelCrudController(
             $this->requestStack,
             $this->importExportService

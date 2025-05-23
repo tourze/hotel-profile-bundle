@@ -28,10 +28,10 @@ class HotelProfileExtensionTest extends TestCase
     public function test_load_registersServices(): void
     {
         $this->extension->load([], $this->container);
-        
+
         // 验证服务是否已注册
         $this->assertTrue($this->container->hasDefinition(HotelImportExportService::class));
-        
+
         // 验证服务定义
         $serviceDefinition = $this->container->getDefinition(HotelImportExportService::class);
         $this->assertFalse($serviceDefinition->isPublic());
@@ -42,7 +42,7 @@ class HotelProfileExtensionTest extends TestCase
     public function test_load_withEmptyConfig_worksCorrectly(): void
     {
         $this->extension->load([], $this->container);
-        
+
         $this->assertTrue($this->container->hasDefinition(HotelImportExportService::class));
     }
 
@@ -50,9 +50,9 @@ class HotelProfileExtensionTest extends TestCase
     {
         $config1 = [];
         $config2 = [];
-        
+
         $this->extension->load([$config1, $config2], $this->container);
-        
+
         $this->assertTrue($this->container->hasDefinition(HotelImportExportService::class));
     }
 
@@ -70,11 +70,11 @@ class HotelProfileExtensionTest extends TestCase
     public function test_load_registersExpectedNumberOfServices(): void
     {
         $initialServiceCount = count($this->container->getDefinitions());
-        
+
         $this->extension->load([], $this->container);
-        
+
         $finalServiceCount = count($this->container->getDefinitions());
-        
+
         // 应该至少注册了一个服务
         $this->assertGreaterThan($initialServiceCount, $finalServiceCount);
     }
@@ -82,8 +82,8 @@ class HotelProfileExtensionTest extends TestCase
     public function test_serviceDefinition_hasCorrectClass(): void
     {
         $this->extension->load([], $this->container);
-        
+
         $serviceDefinition = $this->container->getDefinition(HotelImportExportService::class);
         $this->assertEquals(HotelImportExportService::class, $serviceDefinition->getClass());
     }
-} 
+}
