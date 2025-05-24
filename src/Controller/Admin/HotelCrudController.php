@@ -173,7 +173,7 @@ class HotelCrudController extends AbstractCrudController
 
         yield CollectionField::new('roomTypes', '房型列表')
             ->onlyOnDetail()
-            ->setTemplatePath('admin/field/room_types.html.twig');
+            ->setTemplatePath('@HotelProfile/admin/field/room_types.html.twig');
 
         yield FormField::addFieldset('系统信息')->setIcon('fa fa-info-circle')
             ->hideOnForm();
