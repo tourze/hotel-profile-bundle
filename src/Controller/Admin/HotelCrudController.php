@@ -232,7 +232,7 @@ class HotelCrudController extends AbstractCrudController
             }
         }
 
-        return $this->render('admin/hotel/import.html.twig');
+        return $this->render('@HotelProfile/admin/import.html.twig');
     }
 
     /**

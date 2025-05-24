@@ -1,0 +1,42 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block page_title '酒店数据导入' %}
+
+{% block content_title '酒店数据批量导入' %}
+
+{% block main %}
+    <div class="card">
+        <div class="card-body">
+            <div class="alert alert-info">
+                <p>请按照模板格式准备Excel文件，然后上传导入。</p>
+                <ul>
+                    <li>如果酒店名称已存在，将更新对应酒店的信息</li>
+                    <li>如果酒店名称不存在，将创建新的酒店记录</li>
+                    <li>必填字段：酒店名称、详细地址、星级、联系人、联系电话</li>
+                </ul>
+            </div>
+            
+            <div class="mb-4">
+                <a href="{{ ea_url().setAction('downloadImportTemplate') }}" class="btn btn-secondary">
+                    <i class="fa fa-download"></i> 下载导入模板
+                </a>
+            </div>
+
+            <form action="{{ ea_url().setAction('importHotelsForm') }}" method="post" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label for="excel_file" class="form-label">选择Excel文件</label>
+                    <input type="file" class="form-control" id="excel_file" name="excel_file" accept=".xlsx">
+                </div>
+                
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa fa-upload"></i> 上传并导入
+                </button>
+
+                <a href="{{ ea_url().setAction('index') }}"
+                   class="btn btn-link">
+                    返回酒店列表
+                </a>
+            </form>
+        </div>
+    </div>
+{% endblock %}
