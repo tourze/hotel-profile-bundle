@@ -24,15 +24,20 @@
     "symfony/http-foundation": "^6.4",
     "symfony/http-kernel": "^6.4",
     "symfony/routing": "^6.4",
+    "symfony/twig-bundle": "^6.4",
     "symfony/yaml": "^6.4 || ^7.1",
+    "tourze/bundle-dependency": "0.0.*",
     "tourze/doctrine-timestamp-bundle": "0.0.*",
     "tourze/easy-admin-menu-bundle": "0.1.*",
     "tourze/enum-extra": "0.1.*",
+    "tourze/symfony-integration-test-kernel": "0.0.*",
     "tourze/symfony-routing-auto-loader-bundle": "0.0.*"
   },
   "require-dev": {
     "phpstan/phpstan": "^2.1",
-    "phpunit/phpunit": "^10.0"
+    "phpunit/phpunit": "^10.0",
+    "symfony/phpunit-bridge": "^6.4",
+    "tourze/integration-test-kernel": "0.0.*"
   },
   "autoload": {
     "psr-4": {

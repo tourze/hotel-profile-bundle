@@ -36,8 +36,8 @@ class HotelProfileBundleTest extends TestCase
     {
         $bundle = new HotelProfileBundle();
         $path = $bundle->getPath();
-        
+
         $this->assertStringEndsWith('src', $path);
         $this->assertDirectoryExists($path);
     }
-} 
+}

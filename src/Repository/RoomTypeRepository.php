@@ -66,7 +66,7 @@ class RoomTypeRepository extends ServiceEntityRepository
     public function findByNameAndHotelId(string $name, int $hotelId): ?RoomType
     {
         return $this->createQueryBuilder('rt')
-            ->andWhere('rt.name LIKE :name')
+            ->andWhere('rt.name = :name')
             ->andWhere('rt.hotel = :hotelId')
             ->setParameter('name', $name)
             ->setParameter('hotelId', $hotelId)
