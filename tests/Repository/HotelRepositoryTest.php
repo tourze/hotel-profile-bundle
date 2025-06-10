@@ -18,7 +18,10 @@ class HotelRepositoryTest extends KernelTestCase
 
     protected static function createKernel(array $options = []): KernelInterface
     {
-        return new IntegrationTestKernel('test', true, [
+        $env = $options['environment'] ?? $_ENV['APP_ENV'] ?? $_SERVER['APP_ENV'] ?? 'test';
+        $debug = $options['debug'] ?? $_ENV['APP_DEBUG'] ?? $_SERVER['APP_DEBUG'] ?? true;
+
+        return new IntegrationTestKernel($env, $debug, [
             HotelProfileBundle::class => ['all' => true],
         ]);
     }
@@ -26,11 +29,8 @@ class HotelRepositoryTest extends KernelTestCase
     protected function setUp(): void
     {
         self::bootKernel();
-
         $this->entityManager = static::getContainer()->get(EntityManagerInterface::class);
         $this->repository = static::getContainer()->get(HotelRepository::class);
-
-        // 清理数据库
         $this->cleanDatabase();
     }
 
@@ -43,93 +43,123 @@ class HotelRepositoryTest extends KernelTestCase
 
     private function cleanDatabase(): void
     {
-        $hotels = $this->repository->findAll();
-        foreach ($hotels as $hotel) {
-            $this->entityManager->remove($hotel);
-        }
-        $this->entityManager->flush();
+        $connection = $this->entityManager->getConnection();
+        $connection->executeStatement('DELETE FROM ims_hotel_room_type');
+        $connection->executeStatement('DELETE FROM ims_hotel_profile');
     }
 
-    public function test_save_withFlush_persistsHotelToDatabase(): void
+    public function test_save_withValidEntity_persistsToDatabase(): void
     {
-        $hotel = new Hotel();
-        $hotel->setName('测试酒店');
-        $hotel->setAddress('测试地址');
-        $hotel->setStarLevel(5);
-        $hotel->setContactPerson('测试联系人');
-        $hotel->setPhone('13800000000');
-        $hotel->setEmail('test@hotel.com');
-        $hotel->setStatus(HotelStatusEnum::OPERATING);
+        // Arrange
+        $hotel = $this->createTestHotel('测试酒店', '测试地址');
 
+        // Act
         $this->repository->save($hotel, true);
 
+        // Assert
         $this->assertNotNull($hotel->getId());
-
-        // 验证数据已保存到数据库
         $savedHotel = $this->repository->find($hotel->getId());
         $this->assertNotNull($savedHotel);
         $this->assertEquals('测试酒店', $savedHotel->getName());
         $this->assertEquals('测试地址', $savedHotel->getAddress());
     }
 
+    public function test_save_withFlush_immediatelyPersists(): void
+    {
+        // Arrange
+        $hotel = $this->createTestHotel();
+
+        // Act
+        $this->repository->save($hotel, true);
+
+        // Assert
+        $this->assertNotNull($hotel->getId());
+        $count = $this->repository->count([]);
+        $this->assertEquals(1, $count);
+    }
+
     public function test_save_withoutFlush_doesNotPersistImmediately(): void
     {
-        $hotel = new Hotel();
-        $hotel->setName('测试酒店');
-        $hotel->setAddress('测试地址');
-        $hotel->setStarLevel(5);
-        $hotel->setContactPerson('测试联系人');
-        $hotel->setPhone('13800000000');
+        // Arrange
+        $hotel = $this->createTestHotel();
 
+        // Act
         $this->repository->save($hotel, false);
 
-        // 在flush之前，ID应该为null
+        // Assert
         $this->assertNull($hotel->getId());
-
         $this->entityManager->flush();
-
-        // flush后ID应该有值
         $this->assertNotNull($hotel->getId());
     }
 
-    public function test_remove_withFlush_deletesHotelFromDatabase(): void
+    public function test_remove_withValidEntity_deletesFromDatabase(): void
     {
+        // Arrange
         $hotel = $this->createTestHotel();
         $this->repository->save($hotel, true);
         $hotelId = $hotel->getId();
 
+        // Act
         $this->repository->remove($hotel, true);
 
+        // Assert
         $deletedHotel = $this->repository->find($hotelId);
         $this->assertNull($deletedHotel);
     }
 
-    public function test_findByName_withExactMatch_returnsHotel(): void
+    public function test_find_withValidId_returnsEntity(): void
     {
-        $hotel1 = $this->createTestHotel('豪华大酒店', '北京');
-        $hotel2 = $this->createTestHotel('商务酒店', '上海');
+        // Arrange
+        $hotel = $this->createTestHotel('查找测试酒店');
+        $this->repository->save($hotel, true);
 
+        // Act
+        $result = $this->repository->find($hotel->getId());
+
+        // Assert
+        $this->assertNotNull($result);
+        $this->assertEquals('查找测试酒店', $result->getName());
+    }
+
+    public function test_find_withInvalidId_returnsNull(): void
+    {
+        // Act
+        $result = $this->repository->find(999999);
+
+        // Assert
+        $this->assertNull($result);
+    }
+
+    public function test_findByName_withExactMatch_returnsHotels(): void
+    {
+        // Arrange
+        $hotel1 = $this->createTestHotel('豪华大酒店');
+        $hotel2 = $this->createTestHotel('商务酒店');
         $this->repository->save($hotel1, true);
         $this->repository->save($hotel2, true);
 
+        // Act
         $results = $this->repository->findByName('豪华大酒店');
 
+        // Assert
         $this->assertCount(1, $results);
         $this->assertEquals('豪华大酒店', $results[0]->getName());
     }
 
     public function test_findByName_withPartialMatch_returnsMatchingHotels(): void
     {
-        $hotel1 = $this->createTestHotel('豪华大酒店', '北京');
-        $hotel2 = $this->createTestHotel('豪华商务酒店', '上海');
-        $hotel3 = $this->createTestHotel('快捷酒店', '广州');
-
+        // Arrange
+        $hotel1 = $this->createTestHotel('豪华大酒店');
+        $hotel2 = $this->createTestHotel('豪华商务酒店');
+        $hotel3 = $this->createTestHotel('快捷酒店');
         $this->repository->save($hotel1, true);
         $this->repository->save($hotel2, true);
         $this->repository->save($hotel3, true);
 
+        // Act
         $results = $this->repository->findByName('豪华');
 
+        // Assert
         $this->assertCount(2, $results);
         $hotelNames = array_map(fn($hotel) => $hotel->getName(), $results);
         $this->assertContains('豪华大酒店', $hotelNames);
@@ -138,30 +168,34 @@ class HotelRepositoryTest extends KernelTestCase
 
     public function test_findByName_withNoMatch_returnsEmptyArray(): void
     {
-        $hotel = $this->createTestHotel('测试酒店', '测试地址');
+        // Arrange
+        $hotel = $this->createTestHotel('测试酒店');
         $this->repository->save($hotel, true);
 
+        // Act
         $results = $this->repository->findByName('不存在的酒店');
 
+        // Assert
         $this->assertEmpty($results);
     }
 
-    public function test_findByStarLevel_returnsHotelsWithSpecifiedStarLevel(): void
+    public function test_findByStarLevel_returnsCorrectStarLevelHotels(): void
     {
+        // Arrange
         $hotel1 = $this->createTestHotel('五星酒店1', '地址1', 5);
         $hotel2 = $this->createTestHotel('五星酒店2', '地址2', 5);
         $hotel3 = $this->createTestHotel('四星酒店', '地址3', 4);
-
         $this->repository->save($hotel1, true);
         $this->repository->save($hotel2, true);
         $this->repository->save($hotel3, true);
 
+        // Act
         $fiveStarHotels = $this->repository->findByStarLevel(5);
         $fourStarHotels = $this->repository->findByStarLevel(4);
 
+        // Assert
         $this->assertCount(2, $fiveStarHotels);
         $this->assertCount(1, $fourStarHotels);
-
         foreach ($fiveStarHotels as $hotel) {
             $this->assertEquals(5, $hotel->getStarLevel());
         }
@@ -169,33 +203,38 @@ class HotelRepositoryTest extends KernelTestCase
 
     public function test_findByStarLevel_withNoMatch_returnsEmptyArray(): void
     {
+        // Arrange
         $hotel = $this->createTestHotel('三星酒店', '地址', 3);
         $this->repository->save($hotel, true);
 
+        // Act
         $results = $this->repository->findByStarLevel(5);
 
+        // Assert
         $this->assertEmpty($results);
     }
 
     public function test_findOperatingHotels_returnsOnlyOperatingHotels(): void
     {
-        $operatingHotel1 = $this->createTestHotel('运营酒店1', '地址1');
+        // Arrange
+        $operatingHotel1 = $this->createTestHotel('运营酒店1');
         $operatingHotel1->setStatus(HotelStatusEnum::OPERATING);
 
-        $operatingHotel2 = $this->createTestHotel('运营酒店2', '地址2');
+        $operatingHotel2 = $this->createTestHotel('运营酒店2');
         $operatingHotel2->setStatus(HotelStatusEnum::OPERATING);
 
-        $suspendedHotel = $this->createTestHotel('暂停酒店', '地址3');
+        $suspendedHotel = $this->createTestHotel('暂停酒店');
         $suspendedHotel->setStatus(HotelStatusEnum::SUSPENDED);
 
         $this->repository->save($operatingHotel1, true);
         $this->repository->save($operatingHotel2, true);
         $this->repository->save($suspendedHotel, true);
 
+        // Act
         $operatingHotels = $this->repository->findOperatingHotels();
 
+        // Assert
         $this->assertCount(2, $operatingHotels);
-
         foreach ($operatingHotels as $hotel) {
             $this->assertEquals(HotelStatusEnum::OPERATING, $hotel->getStatus());
         }
@@ -203,51 +242,61 @@ class HotelRepositoryTest extends KernelTestCase
 
     public function test_findOperatingHotels_withNoOperatingHotels_returnsEmptyArray(): void
     {
-        $suspendedHotel = $this->createTestHotel('暂停酒店', '地址');
+        // Arrange
+        $suspendedHotel = $this->createTestHotel('暂停酒店');
         $suspendedHotel->setStatus(HotelStatusEnum::SUSPENDED);
         $this->repository->save($suspendedHotel, true);
 
+        // Act
         $results = $this->repository->findOperatingHotels();
 
+        // Assert
         $this->assertEmpty($results);
     }
 
     public function test_findAll_returnsAllHotels(): void
     {
-        $hotel1 = $this->createTestHotel('酒店1', '地址1');
-        $hotel2 = $this->createTestHotel('酒店2', '地址2');
-
+        // Arrange
+        $hotel1 = $this->createTestHotel('酒店1');
+        $hotel2 = $this->createTestHotel('酒店2');
         $this->repository->save($hotel1, true);
         $this->repository->save($hotel2, true);
 
+        // Act
         $hotels = $this->repository->findAll();
 
+        // Assert
         $this->assertCount(2, $hotels);
     }
 
     public function test_findOneBy_returnsMatchingHotel(): void
     {
-        $hotel = $this->createTestHotel('唯一酒店', '唯一地址');
+        // Arrange
+        $hotel = $this->createTestHotel('唯一酒店');
         $this->repository->save($hotel, true);
 
+        // Act
         $foundHotel = $this->repository->findOneBy(['name' => '唯一酒店']);
 
+        // Assert
         $this->assertNotNull($foundHotel);
         $this->assertEquals('唯一酒店', $foundHotel->getName());
     }
 
     public function test_findBy_withCriteria_returnsMatchingHotels(): void
     {
+        // Arrange
         $hotel1 = $this->createTestHotel('北京酒店', '北京地址', 5);
         $hotel2 = $this->createTestHotel('上海酒店', '上海地址', 5);
         $hotel3 = $this->createTestHotel('广州酒店', '广州地址', 4);
-
         $this->repository->save($hotel1, true);
         $this->repository->save($hotel2, true);
         $this->repository->save($hotel3, true);
 
+        // Act
         $fiveStarHotels = $this->repository->findBy(['starLevel' => 5]);
 
+        // Assert
         $this->assertCount(2, $fiveStarHotels);
     }
 
