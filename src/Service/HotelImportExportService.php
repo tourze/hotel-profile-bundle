@@ -213,7 +213,7 @@ class HotelImportExportService
                     }
                     
                     $importCount++;
-                } catch (\Throwable $e) {
+                } catch  (\Throwable $e) {
                     $errors[] = "第 {$row} 行处理失败: " . $e->getMessage();
                     $this->logger->error('导入酒店数据失败', [
                         'row' => $row, 
@@ -230,7 +230,7 @@ class HotelImportExportService
             
             return $result;
             
-        } catch (\Throwable $e) {
+        } catch  (\Throwable $e) {
             $result['success'] = false;
             $result['errors'][] = '导入过程发生错误: ' . $e->getMessage();
             $this->logger->error('Excel导入失败', ['error' => $e->getMessage()]);
