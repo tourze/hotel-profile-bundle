@@ -6,8 +6,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Stringable;
 use Symfony\Component\Validator\Constraints as Assert;
-use Tourze\DoctrineTimestampBundle\Attribute\CreateTimeColumn;
-use Tourze\DoctrineTimestampBundle\Attribute\UpdateTimeColumn;
+use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
 use Tourze\HotelProfileBundle\Enum\RoomTypeStatusEnum;
 use Tourze\HotelProfileBundle\Repository\RoomTypeRepository;
 
@@ -16,6 +15,7 @@ use Tourze\HotelProfileBundle\Repository\RoomTypeRepository;
 #[ORM\Index(name: 'room_type_idx_hotel_name', columns: ['hotel_id', 'name'])]
 class RoomType implements Stringable
 {
+    use TimestampableAware;
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: Types::BIGINT)]
@@ -55,17 +55,7 @@ class RoomType implements Stringable
     private array $photos = [];
 
     #[ORM\Column(type: Types::TEXT, nullable: true, options: ['comment' => '房型描述'])]
-    private ?string $description = null;
-
-    #[CreateTimeColumn]
-    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
-    private ?\DateTimeInterface $createTime = null;
-
-    #[UpdateTimeColumn]
-    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
-    private ?\DateTimeInterface $updateTime = null;
-
-    #[ORM\Column(type: Types::STRING, length: 20, enumType: RoomTypeStatusEnum::class, options: ['comment' => '状态'])]
+    private ?string $description = null;#[ORM\Column(type: Types::STRING, length: 20, enumType: RoomTypeStatusEnum::class, options: ['comment' => '状态'])]
     private RoomTypeStatusEnum $status = RoomTypeStatusEnum::ACTIVE;
 
     public function __toString(): string
@@ -175,19 +165,7 @@ class RoomType implements Stringable
     {
         $this->description = $description;
         return $this;
-    }
-
-    public function getCreateTime(): ?\DateTimeInterface
-    {
-        return $this->createTime;
-    }
-
-    public function getUpdateTime(): ?\DateTimeInterface
-    {
-        return $this->updateTime;
-    }
-
-    public function getStatus(): RoomTypeStatusEnum
+    }public function getStatus(): RoomTypeStatusEnum
     {
         return $this->status;
     }
@@ -196,15 +174,4 @@ class RoomType implements Stringable
     {
         $this->status = $status;
         return $this;
-    }
-
-    public function setCreateTime(?\DateTimeInterface $createTime): void
-    {
-        $this->createTime = $createTime;
-    }
-
-    public function setUpdateTime(?\DateTimeInterface $updateTime): void
-    {
-        $this->updateTime = $updateTime;
-    }
-}
+    }}

@@ -8,8 +8,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Stringable;
 use Symfony\Component\Validator\Constraints as Assert;
-use Tourze\DoctrineTimestampBundle\Attribute\CreateTimeColumn;
-use Tourze\DoctrineTimestampBundle\Attribute\UpdateTimeColumn;
+use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
 use Tourze\HotelProfileBundle\Enum\HotelStatusEnum;
 use Tourze\HotelProfileBundle\Repository\HotelRepository;
 
@@ -18,6 +17,7 @@ use Tourze\HotelProfileBundle\Repository\HotelRepository;
 #[ORM\Index(name: 'hotel_idx_name', columns: ['name'])]
 class Hotel implements Stringable
 {
+    use TimestampableAware;
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: Types::BIGINT)]
@@ -56,17 +56,7 @@ class Hotel implements Stringable
     private array $photos = [];
 
     #[ORM\Column(type: Types::JSON, nullable: true, options: ['comment' => '设施与服务信息'])]
-    private array $facilities = [];
-
-    #[CreateTimeColumn]
-    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
-    private ?\DateTimeInterface $createTime = null;
-
-    #[UpdateTimeColumn]
-    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
-    private ?\DateTimeInterface $updateTime = null;
-
-    #[ORM\Column(type: Types::STRING, length: 20, enumType: HotelStatusEnum::class, options: ['comment' => '酒店状态'])]
+    private array $facilities = [];#[ORM\Column(type: Types::STRING, length: 20, enumType: HotelStatusEnum::class, options: ['comment' => '酒店状态'])]
     private HotelStatusEnum $status = HotelStatusEnum::OPERATING;
 
     #[ORM\OneToMany(targetEntity: RoomType::class, mappedBy: 'hotel', fetch: 'EXTRA_LAZY', orphanRemoval: true)]
@@ -173,19 +163,7 @@ class Hotel implements Stringable
     {
         $this->facilities = $facilities;
         return $this;
-    }
-
-    public function getCreateTime(): ?\DateTimeInterface
-    {
-        return $this->createTime;
-    }
-
-    public function getUpdateTime(): ?\DateTimeInterface
-    {
-        return $this->updateTime;
-    }
-
-    public function getStatus(): HotelStatusEnum
+    }public function getStatus(): HotelStatusEnum
     {
         return $this->status;
     }
@@ -223,15 +201,4 @@ class Hotel implements Stringable
         }
 
         return $this;
-    }
-
-    public function setCreateTime(?\DateTimeInterface $createTime): void
-    {
-        $this->createTime = $createTime;
-    }
-
-    public function setUpdateTime(?\DateTimeInterface $updateTime): void
-    {
-        $this->updateTime = $updateTime;
-    }
-}
+    }}
