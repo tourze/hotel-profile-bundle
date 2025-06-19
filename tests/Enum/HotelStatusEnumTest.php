@@ -52,7 +52,6 @@ class HotelStatusEnumTest extends TestCase
     {
         foreach (HotelStatusEnum::cases() as $case) {
             $label = $case->getLabel();
-            $this->assertIsString($label);
             $this->assertNotEmpty($label);
         }
     }

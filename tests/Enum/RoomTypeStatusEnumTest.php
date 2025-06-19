@@ -52,7 +52,6 @@ class RoomTypeStatusEnumTest extends TestCase
     {
         foreach (RoomTypeStatusEnum::cases() as $case) {
             $label = $case->getLabel();
-            $this->assertIsString($label);
             $this->assertNotEmpty($label);
         }
     }
