@@ -239,7 +239,7 @@ class HotelTest extends TestCase
     public function test_setCreateTime_andGetCreateTime_worksCorrectly(): void
     {
         // Arrange
-        $createTime = new \DateTime('2024-01-01 10:00:00');
+        $createTime = new \DateTimeImmutable('2024-01-01 10:00:00');
 
         // Act
         $this->hotel->setCreateTime($createTime);
@@ -251,7 +251,7 @@ class HotelTest extends TestCase
     public function test_setUpdateTime_andGetUpdateTime_worksCorrectly(): void
     {
         // Arrange
-        $updateTime = new \DateTime('2024-01-02 15:30:00');
+        $updateTime = new \DateTimeImmutable('2024-01-02 15:30:00');
 
         // Act
         $this->hotel->setUpdateTime($updateTime);

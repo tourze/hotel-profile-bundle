@@ -165,7 +165,7 @@ class RoomTypeTest extends TestCase
 
     public function testSetAndGetCreateTime(): void
     {
-        $createTime = new \DateTime('2023-01-01 10:00:00');
+        $createTime = new \DateTimeImmutable('2023-01-01 10:00:00');
 
         $this->roomType->setCreateTime($createTime);
 
@@ -181,7 +181,7 @@ class RoomTypeTest extends TestCase
 
     public function testSetAndGetUpdateTime(): void
     {
-        $updateTime = new \DateTime('2023-01-02 10:00:00');
+        $updateTime = new \DateTimeImmutable('2023-01-02 10:00:00');
 
         $this->roomType->setUpdateTime($updateTime);
 
@@ -202,7 +202,7 @@ class RoomTypeTest extends TestCase
         $this->roomType->setHotel($hotel);
         $this->roomType->setName('Deluxe Suite');
 
-        $result = (string) $this->roomType;
+        $result = (string)$this->roomType;
 
         $this->assertSame('Grand Hotel - Deluxe Suite', $result);
     }
@@ -211,14 +211,14 @@ class RoomTypeTest extends TestCase
     {
         $this->roomType->setName('Standard Room');
 
-        $result = (string) $this->roomType;
+        $result = (string)$this->roomType;
 
         $this->assertSame('Standard Room', $result);
     }
 
     public function testToStringWithEmptyName(): void
     {
-        $result = (string) $this->roomType;
+        $result = (string)$this->roomType;
 
         $this->assertSame('', $result);
     }
@@ -228,8 +228,8 @@ class RoomTypeTest extends TestCase
         $hotel = new Hotel();
         $hotel->setName('Test Hotel')->setAddress('Test Address')->setStarLevel(4);
         $photos = ['room1.jpg', 'room2.jpg'];
-        $createTime = new \DateTime('2023-01-01 10:00:00');
-        $updateTime = new \DateTime('2023-01-02 10:00:00');
+        $createTime = new \DateTimeImmutable('2023-01-01 10:00:00');
+        $updateTime = new \DateTimeImmutable('2023-01-02 10:00:00');
 
         $this->roomType
             ->setHotel($hotel)
@@ -258,7 +258,7 @@ class RoomTypeTest extends TestCase
         $this->assertSame(RoomTypeStatusEnum::ACTIVE, $this->roomType->getStatus());
         $this->assertSame($createTime, $this->roomType->getCreateTime());
         $this->assertSame($updateTime, $this->roomType->getUpdateTime());
-        $this->assertSame('Test Hotel - Executive Suite', (string) $this->roomType);
+        $this->assertSame('Test Hotel - Executive Suite', (string)$this->roomType);
     }
 
     public function testMethodChaining(): void
