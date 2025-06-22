@@ -76,20 +76,6 @@ class AttributeControllerLoaderTest extends TestCase
         $this->assertTrue($property->isPrivate());
     }
 
-    public function testHasAutoloadMethod(): void
-    {
-        $this->assertTrue(method_exists($this->loader, 'autoload'));
-    }
-
-    public function testHasLoadMethod(): void
-    {
-        $this->assertTrue(method_exists($this->loader, 'load'));
-    }
-
-    public function testHasSupportsMethod(): void
-    {
-        $this->assertTrue(method_exists($this->loader, 'supports'));
-    }
 
     public function testLoadCallsAutoload(): void
     {

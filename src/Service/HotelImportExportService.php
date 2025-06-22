@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Tourze\HotelProfileBundle\Entity\Hotel;
 use Tourze\HotelProfileBundle\Enum\HotelStatusEnum;
+use Tourze\HotelProfileBundle\Repository\HotelRepository;
 
 /**
  * 酒店数据导入导出服务
@@ -19,6 +20,7 @@ class HotelImportExportService
 {
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
+        private readonly HotelRepository $hotelRepository,
         private readonly LoggerInterface $logger,
     ) {
     }
@@ -47,7 +49,7 @@ class HotelImportExportService
         $sheet->getStyle('A1:H1')->getFont()->setBold(true);
         
         // 添加数据
-        $hotels = $this->entityManager->getRepository(Hotel::class)->findAll();
+        $hotels = $this->hotelRepository->findAll();
         $row = 2;
         
         foreach ($hotels as $hotel) {
@@ -179,10 +181,9 @@ class HotelImportExportService
                 
                 try {
                     // 检查是否已存在同名酒店
-                    $existingHotel = $this->entityManager->getRepository(Hotel::class)
-                        ->findOneBy(['name' => $hotelName]);
+                    $existingHotel = $this->hotelRepository->findOneBy(['name' => $hotelName]);
                     
-                    if ($existingHotel) {
+                    if ($existingHotel !== null) {
                         // 更新现有酒店
                         $existingHotel->setAddress($address);
                         $existingHotel->setStarLevel($starLevel);

@@ -95,20 +95,34 @@ class RoomTypeStatusEnumTest extends TestCase
     public function testEnumEquality(): void
     {
         $active1 = RoomTypeStatusEnum::ACTIVE;
-        $active2 = RoomTypeStatusEnum::ACTIVE;
         $disabled = RoomTypeStatusEnum::DISABLED;
 
-        $this->assertTrue($active1 === $active2);
-        $this->assertFalse($active1 === $disabled);
+        // 测试枚举值的比较
+        $this->assertSame($active1, RoomTypeStatusEnum::ACTIVE);
+        $this->assertNotSame($active1, $disabled);
     }
 
-    public function testEnumInSwitch(): void
+    /**
+     * @dataProvider statusMatchProvider
+     */
+    public function testEnumInSwitch(RoomTypeStatusEnum $status, string $expected): void
     {
-        $result = match (RoomTypeStatusEnum::ACTIVE) {
+        $result = match ($status) {
             RoomTypeStatusEnum::ACTIVE => 'active_matched',
             RoomTypeStatusEnum::DISABLED => 'disabled_matched',
         };
 
-        $this->assertSame('active_matched', $result);
+        $this->assertSame($expected, $result);
+    }
+
+    /**
+     * @return array<string, array{RoomTypeStatusEnum, string}>
+     */
+    public function statusMatchProvider(): array
+    {
+        return [
+            'active' => [RoomTypeStatusEnum::ACTIVE, 'active_matched'],
+            'disabled' => [RoomTypeStatusEnum::DISABLED, 'disabled_matched'],
+        ];
     }
 }

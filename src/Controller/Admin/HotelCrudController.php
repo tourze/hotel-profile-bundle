@@ -210,7 +210,7 @@ class HotelCrudController extends AbstractCrudController
             /** @var UploadedFile|null $excelFile */
             $excelFile = $request->files->get('excel_file');
 
-            if ($excelFile) {
+            if ($excelFile !== null) {
                 $result = $this->importExportService->importHotelsFromExcel($excelFile);
 
                 if ($result['success']) {

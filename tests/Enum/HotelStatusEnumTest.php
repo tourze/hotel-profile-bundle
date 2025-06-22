@@ -95,20 +95,34 @@ class HotelStatusEnumTest extends TestCase
     public function testEnumEquality(): void
     {
         $operating1 = HotelStatusEnum::OPERATING;
-        $operating2 = HotelStatusEnum::OPERATING;
         $suspended = HotelStatusEnum::SUSPENDED;
 
-        $this->assertTrue($operating1 === $operating2);
-        $this->assertFalse($operating1 === $suspended);
+        // 测试枚举值的比较
+        $this->assertSame($operating1, HotelStatusEnum::OPERATING);
+        $this->assertNotSame($operating1, $suspended);
     }
 
-    public function testEnumInSwitch(): void
+    /**
+     * @dataProvider statusMatchProvider
+     */
+    public function testEnumInSwitch(HotelStatusEnum $status, string $expected): void
     {
-        $result = match (HotelStatusEnum::OPERATING) {
+        $result = match ($status) {
             HotelStatusEnum::OPERATING => 'operating_matched',
             HotelStatusEnum::SUSPENDED => 'suspended_matched',
         };
 
-        $this->assertSame('operating_matched', $result);
+        $this->assertSame($expected, $result);
+    }
+
+    /**
+     * @return array<string, array{HotelStatusEnum, string}>
+     */
+    public function statusMatchProvider(): array
+    {
+        return [
+            'operating' => [HotelStatusEnum::OPERATING, 'operating_matched'],
+            'suspended' => [HotelStatusEnum::SUSPENDED, 'suspended_matched'],
+        ];
     }
 }

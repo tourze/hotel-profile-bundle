@@ -216,7 +216,7 @@ class RoomTypeFixtures extends Fixture implements DependentFixtureInterface, Fix
     /**
      * 定义依赖的Fixture类
      *
-     * @return string[]
+     * @return array<class-string<\Doctrine\Common\DataFixtures\FixtureInterface>>
      */
     public function getDependencies(): array
     {

@@ -31,15 +31,6 @@ class AdminMenuTest extends TestCase
         $this->assertInstanceOf(AdminMenu::class, $adminMenu);
     }
 
-    public function testServiceIsCallable(): void
-    {
-        $this->assertTrue(is_callable($this->adminMenu));
-    }
-
-    public function testHasInvokeMethod(): void
-    {
-        $this->assertTrue(method_exists($this->adminMenu, '__invoke'));
-    }
 
     public function testLinkGeneratorPropertyExists(): void
     {
