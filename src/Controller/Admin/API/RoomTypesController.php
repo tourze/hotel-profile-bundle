@@ -16,7 +16,7 @@ class RoomTypesController extends AbstractController
     /**
      * 获取指定酒店的房型列表
      */
-    #[Route('/admin/api/room-types', name: 'admin_api_room_types', methods: ['GET'])]
+    #[Route(path: '/admin/api/room-types', name: 'admin_api_room_types', methods: ['GET'])]
     public function __invoke(Request $request, RoomTypeRepository $roomTypeRepository): JsonResponse
     {
         $hotelId = $request->query->get('hotelId');

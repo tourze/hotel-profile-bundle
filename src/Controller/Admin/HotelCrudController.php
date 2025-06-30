@@ -188,7 +188,7 @@ class HotelCrudController extends AbstractCrudController
     /**
      * 导出酒店数据到Excel
      */
-    #[AdminAction('export', routeName: 'export')]
+    #[AdminAction(routeName: 'export')]
     public function exportHotels(AdminContext $context): Response
     {
         $exportResult = $this->importExportService->exportHotelsToExcel();
@@ -203,7 +203,7 @@ class HotelCrudController extends AbstractCrudController
     /**
      * 显示酒店数据导入表单
      */
-    #[AdminAction('import', routeName: 'import')]
+    #[AdminAction(routeName: 'import')]
     public function importHotelsForm(AdminContext $context, Request $request): Response
     {
         if ($request->isMethod('POST')) {
@@ -238,7 +238,7 @@ class HotelCrudController extends AbstractCrudController
     /**
      * 下载酒店数据导入模板
      */
-    #[AdminAction('download-template', routeName: 'download-template')]
+    #[AdminAction(routeName: 'download-template')]
     public function downloadImportTemplate(AdminContext $context): Response
     {
         $templateResult = $this->importExportService->createImportTemplate();
