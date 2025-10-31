@@ -2,12 +2,17 @@
 
 namespace Tourze\HotelProfileBundle\Tests\Entity;
 
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
 use Tourze\HotelProfileBundle\Entity\Hotel;
 use Tourze\HotelProfileBundle\Entity\RoomType;
 use Tourze\HotelProfileBundle\Enum\RoomTypeStatusEnum;
+use Tourze\PHPUnitDoctrineEntity\AbstractEntityTestCase;
 
-class RoomTypeTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(RoomType::class)]
+final class RoomTypeTest extends AbstractEntityTestCase
 {
     private RoomType $roomType;
 
@@ -37,11 +42,11 @@ class RoomTypeTest extends TestCase
     public function testSetAndGetHotel(): void
     {
         $hotel = new Hotel();
-        $hotel->setName('Test Hotel')->setAddress('Test Address')->setStarLevel(5);
+        $hotel->setName('Test Hotel');
+        $hotel->setAddress('Test Address');
+        $hotel->setStarLevel(5);
 
-        $result = $this->roomType->setHotel($hotel);
-
-        $this->assertSame($this->roomType, $result);
+        $this->roomType->setHotel($hotel);
         $this->assertSame($hotel, $this->roomType->getHotel());
     }
 
@@ -56,9 +61,7 @@ class RoomTypeTest extends TestCase
     {
         $name = 'Standard Room';
 
-        $result = $this->roomType->setName($name);
-
-        $this->assertSame($this->roomType, $result);
+        $this->roomType->setName($name);
         $this->assertSame($name, $this->roomType->getName());
     }
 
@@ -66,9 +69,7 @@ class RoomTypeTest extends TestCase
     {
         $code = 'STD001';
 
-        $result = $this->roomType->setCode($code);
-
-        $this->assertSame($this->roomType, $result);
+        $this->roomType->setCode($code);
         $this->assertSame($code, $this->roomType->getCode());
     }
 
@@ -83,9 +84,7 @@ class RoomTypeTest extends TestCase
     {
         $area = 25.5;
 
-        $result = $this->roomType->setArea($area);
-
-        $this->assertSame($this->roomType, $result);
+        $this->roomType->setArea($area);
         $this->assertSame($area, $this->roomType->getArea());
     }
 
@@ -93,9 +92,7 @@ class RoomTypeTest extends TestCase
     {
         $bedType = 'King Size Bed';
 
-        $result = $this->roomType->setBedType($bedType);
-
-        $this->assertSame($this->roomType, $result);
+        $this->roomType->setBedType($bedType);
         $this->assertSame($bedType, $this->roomType->getBedType());
     }
 
@@ -103,9 +100,7 @@ class RoomTypeTest extends TestCase
     {
         $maxGuests = 4;
 
-        $result = $this->roomType->setMaxGuests($maxGuests);
-
-        $this->assertSame($this->roomType, $result);
+        $this->roomType->setMaxGuests($maxGuests);
         $this->assertSame($maxGuests, $this->roomType->getMaxGuests());
     }
 
@@ -113,9 +108,7 @@ class RoomTypeTest extends TestCase
     {
         $breakfastCount = 2;
 
-        $result = $this->roomType->setBreakfastCount($breakfastCount);
-
-        $this->assertSame($this->roomType, $result);
+        $this->roomType->setBreakfastCount($breakfastCount);
         $this->assertSame($breakfastCount, $this->roomType->getBreakfastCount());
     }
 
@@ -123,9 +116,7 @@ class RoomTypeTest extends TestCase
     {
         $photos = ['photo1.jpg', 'photo2.jpg'];
 
-        $result = $this->roomType->setPhotos($photos);
-
-        $this->assertSame($this->roomType, $result);
+        $this->roomType->setPhotos($photos);
         $this->assertSame($photos, $this->roomType->getPhotos());
     }
 
@@ -140,9 +131,7 @@ class RoomTypeTest extends TestCase
     {
         $description = 'A comfortable standard room with city view';
 
-        $result = $this->roomType->setDescription($description);
-
-        $this->assertSame($this->roomType, $result);
+        $this->roomType->setDescription($description);
         $this->assertSame($description, $this->roomType->getDescription());
     }
 
@@ -157,9 +146,7 @@ class RoomTypeTest extends TestCase
     {
         $status = RoomTypeStatusEnum::DISABLED;
 
-        $result = $this->roomType->setStatus($status);
-
-        $this->assertSame($this->roomType, $result);
+        $this->roomType->setStatus($status);
         $this->assertSame($status, $this->roomType->getStatus());
     }
 
@@ -198,11 +185,13 @@ class RoomTypeTest extends TestCase
     public function testToStringWithHotel(): void
     {
         $hotel = new Hotel();
-        $hotel->setName('Grand Hotel')->setAddress('Main Street 123')->setStarLevel(5);
+        $hotel->setName('Grand Hotel');
+        $hotel->setAddress('Main Street 123');
+        $hotel->setStarLevel(5);
         $this->roomType->setHotel($hotel);
         $this->roomType->setName('Deluxe Suite');
 
-        $result = (string)$this->roomType;
+        $result = (string) $this->roomType;
 
         $this->assertSame('Grand Hotel - Deluxe Suite', $result);
     }
@@ -211,14 +200,35 @@ class RoomTypeTest extends TestCase
     {
         $this->roomType->setName('Standard Room');
 
-        $result = (string)$this->roomType;
+        $result = (string) $this->roomType;
 
         $this->assertSame('Standard Room', $result);
     }
 
+    protected function createEntity(): object
+    {
+        return new RoomType();
+    }
+
+    /**
+     * @return iterable<string, array{string, mixed}>
+     */
+    public static function propertiesProvider(): iterable
+    {
+        yield 'name' => ['name', '标准间'];
+        yield 'code' => ['code', 'STD001'];
+        yield 'area' => ['area', 25.5];
+        yield 'bedType' => ['bedType', '大床'];
+        yield 'maxGuests' => ['maxGuests', 4];
+        yield 'breakfastCount' => ['breakfastCount', 2];
+        yield 'photos' => ['photos', ['room1.jpg', 'room2.jpg']];
+        yield 'description' => ['description', '舒适的标间'];
+        yield 'status' => ['status', RoomTypeStatusEnum::DISABLED];
+    }
+
     public function testToStringWithEmptyName(): void
     {
-        $result = (string)$this->roomType;
+        $result = (string) $this->roomType;
 
         $this->assertSame('', $result);
     }
@@ -226,22 +236,23 @@ class RoomTypeTest extends TestCase
     public function testCompleteRoomTypeCreation(): void
     {
         $hotel = new Hotel();
-        $hotel->setName('Test Hotel')->setAddress('Test Address')->setStarLevel(4);
+        $hotel->setName('Test Hotel');
+        $hotel->setAddress('Test Address');
+        $hotel->setStarLevel(4);
         $photos = ['room1.jpg', 'room2.jpg'];
         $createTime = new \DateTimeImmutable('2023-01-01 10:00:00');
         $updateTime = new \DateTimeImmutable('2023-01-02 10:00:00');
 
-        $this->roomType
-            ->setHotel($hotel)
-            ->setName('Executive Suite')
-            ->setCode('EXE001')
-            ->setArea(45.0)
-            ->setBedType('King Size Bed')
-            ->setMaxGuests(3)
-            ->setBreakfastCount(2)
-            ->setPhotos($photos)
-            ->setDescription('Luxurious executive suite with panoramic view')
-            ->setStatus(RoomTypeStatusEnum::ACTIVE);
+        $this->roomType->setHotel($hotel);
+        $this->roomType->setName('Executive Suite');
+        $this->roomType->setCode('EXE001');
+        $this->roomType->setArea(45.0);
+        $this->roomType->setBedType('King Size Bed');
+        $this->roomType->setMaxGuests(3);
+        $this->roomType->setBreakfastCount(2);
+        $this->roomType->setPhotos($photos);
+        $this->roomType->setDescription('Luxurious executive suite with panoramic view');
+        $this->roomType->setStatus(RoomTypeStatusEnum::ACTIVE);
 
         $this->roomType->setCreateTime($createTime);
         $this->roomType->setUpdateTime($updateTime);
@@ -258,26 +269,27 @@ class RoomTypeTest extends TestCase
         $this->assertSame(RoomTypeStatusEnum::ACTIVE, $this->roomType->getStatus());
         $this->assertSame($createTime, $this->roomType->getCreateTime());
         $this->assertSame($updateTime, $this->roomType->getUpdateTime());
-        $this->assertSame('Test Hotel - Executive Suite', (string)$this->roomType);
+        $this->assertSame('Test Hotel - Executive Suite', (string) $this->roomType);
     }
 
     public function testMethodChaining(): void
     {
         $hotel = new Hotel();
-        $hotel->setName('Chain Hotel')->setAddress('Chain Street')->setStarLevel(3);
+        $hotel->setName('Chain Hotel');
+        $hotel->setAddress('Chain Street');
+        $hotel->setStarLevel(3);
 
-        $result = $this->roomType
-            ->setHotel($hotel)
-            ->setName('Standard Room')
-            ->setCode('STD001')
-            ->setArea(20.0)
-            ->setBedType('Double Bed')
-            ->setMaxGuests(2)
-            ->setBreakfastCount(1)
-            ->setPhotos(['photo.jpg'])
-            ->setDescription('Standard room')
-            ->setStatus(RoomTypeStatusEnum::ACTIVE);
+        $this->roomType->setHotel($hotel);
+        $this->roomType->setName('Standard Room');
+        $this->roomType->setCode('STD001');
+        $this->roomType->setArea(20.0);
+        $this->roomType->setBedType('Double Bed');
+        $this->roomType->setMaxGuests(2);
+        $this->roomType->setBreakfastCount(1);
+        $this->roomType->setPhotos(['photo.jpg']);
+        $this->roomType->setDescription('Standard room');
+        $this->roomType->setStatus(RoomTypeStatusEnum::ACTIVE);
 
-        $this->assertSame($this->roomType, $result);
+        $this->assertInstanceOf(RoomType::class, $this->roomType);
     }
 }

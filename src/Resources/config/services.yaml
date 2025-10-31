@@ -7,8 +7,6 @@ services:
 
   Tourze\HotelProfileBundle\Controller\:
     resource: '../../Controller/'
-  Tourze\HotelProfileBundle\DataFixtures\:
-    resource: '../../DataFixtures/'
   Tourze\HotelProfileBundle\Repository\:
     resource: '../../Repository/'
   Tourze\HotelProfileBundle\Service\:

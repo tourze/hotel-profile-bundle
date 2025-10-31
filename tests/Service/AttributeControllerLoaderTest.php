@@ -2,19 +2,26 @@
 
 namespace Tourze\HotelProfileBundle\Tests\Service;
 
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use Symfony\Component\Config\Loader\Loader;
 use Symfony\Component\Routing\RouteCollection;
 use Tourze\HotelProfileBundle\Service\AttributeControllerLoader;
+use Tourze\PHPUnitSymfonyKernelTest\AbstractIntegrationTestCase;
 use Tourze\RoutingAutoLoaderBundle\Service\RoutingAutoLoaderInterface;
 
-class AttributeControllerLoaderTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(AttributeControllerLoader::class)]
+#[RunTestsInSeparateProcesses]
+final class AttributeControllerLoaderTest extends AbstractIntegrationTestCase
 {
     private AttributeControllerLoader $loader;
 
-    protected function setUp(): void
+    protected function onSetUp(): void
     {
-        $this->loader = new AttributeControllerLoader();
+        $this->loader = self::getService(AttributeControllerLoader::class);
     }
 
     public function testExtendsLoader(): void
@@ -56,7 +63,7 @@ class AttributeControllerLoaderTest extends TestCase
 
     public function testConstructorSetsUpCorrectly(): void
     {
-        $loader = new AttributeControllerLoader();
+        $loader = self::getService(AttributeControllerLoader::class);
 
         $this->assertInstanceOf(AttributeControllerLoader::class, $loader);
     }
@@ -76,16 +83,15 @@ class AttributeControllerLoaderTest extends TestCase
         $this->assertTrue($property->isPrivate());
     }
 
-
     public function testLoadCallsAutoload(): void
     {
         // 由于 load 方法调用 autoload，测试它们返回相同类型的对象
         $loadResult = $this->loader->load('dummy');
         $autoloadResult = $this->loader->autoload();
 
-        $this->assertEquals(
+        $this->assertInstanceOf(
             get_class($loadResult),
-            get_class($autoloadResult)
+            $autoloadResult
         );
     }
 }

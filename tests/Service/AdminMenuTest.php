@@ -2,56 +2,69 @@
 
 namespace Tourze\HotelProfileBundle\Tests\Service;
 
-use PHPUnit\Framework\TestCase;
+use Knp\Menu\MenuFactory;
+use Knp\Menu\MenuItem;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use Tourze\EasyAdminMenuBundle\Service\LinkGeneratorInterface;
-use Tourze\EasyAdminMenuBundle\Service\MenuProviderInterface;
 use Tourze\HotelProfileBundle\Service\AdminMenu;
+use Tourze\PHPUnitSymfonyWebTest\AbstractEasyAdminMenuTestCase;
 
-class AdminMenuTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(AdminMenu::class)]
+#[RunTestsInSeparateProcesses]
+final class AdminMenuTest extends AbstractEasyAdminMenuTestCase
 {
-    private AdminMenu $adminMenu;
-    private LinkGeneratorInterface $linkGenerator;
-
-    protected function setUp(): void
-    {
-        $this->linkGenerator = $this->createMock(LinkGeneratorInterface::class);
-        $this->adminMenu = new AdminMenu($this->linkGenerator);
-    }
-
-    public function testImplementsMenuProviderInterface(): void
-    {
-        $this->assertInstanceOf(MenuProviderInterface::class, $this->adminMenu);
-    }
-
-    public function testConstructorAcceptsLinkGenerator(): void
+    protected function onSetUp(): void
     {
         $linkGenerator = $this->createMock(LinkGeneratorInterface::class);
-        $adminMenu = new AdminMenu($linkGenerator);
+        $linkGenerator->method('getCurdListPage')->willReturn('/admin/entity/list');
 
-        $this->assertInstanceOf(AdminMenu::class, $adminMenu);
+        self::getContainer()->set(LinkGeneratorInterface::class, $linkGenerator);
     }
 
-
-    public function testLinkGeneratorPropertyExists(): void
+    private function getAdminMenu(): AdminMenu
     {
-        // 通过反射验证 linkGenerator 属性存在
-        $reflection = new \ReflectionClass($this->adminMenu);
-        $this->assertTrue($reflection->hasProperty('linkGenerator'));
+        return self::getService(AdminMenu::class);
     }
 
-    public function testLinkGeneratorPropertyIsReadonly(): void
+    public function testInvokeCreatesHotelManagementMenu(): void
     {
-        // 通过反射验证 linkGenerator 属性是 readonly
-        $reflection = new \ReflectionClass($this->adminMenu);
-        $property = $reflection->getProperty('linkGenerator');
-        $this->assertTrue($property->isReadOnly());
+        $menuFactory = new MenuFactory();
+        $rootMenu = new MenuItem('root', $menuFactory);
+
+        ($this->getAdminMenu())($rootMenu);
+
+        $hotelManagementMenu = $rootMenu->getChild('酒店管理');
+        $this->assertNotNull($hotelManagementMenu);
+
+        $hotelProfileItem = $hotelManagementMenu->getChild('酒店档案');
+        $this->assertNotNull($hotelProfileItem);
+        $this->assertNotEmpty($hotelProfileItem->getUri());
+        $this->assertEquals('fas fa-hotel', $hotelProfileItem->getAttribute('icon'));
+
+        $roomTypeItem = $hotelManagementMenu->getChild('房型管理');
+        $this->assertNotNull($roomTypeItem);
+        $this->assertNotEmpty($roomTypeItem->getUri());
+        $this->assertEquals('fas fa-bed', $roomTypeItem->getAttribute('icon'));
     }
 
-    public function testLinkGeneratorPropertyIsPrivate(): void
+    public function testInvokeWithExistingHotelManagementMenu(): void
     {
-        // 通过反射验证 linkGenerator 属性是 private
-        $reflection = new \ReflectionClass($this->adminMenu);
-        $property = $reflection->getProperty('linkGenerator');
-        $this->assertTrue($property->isPrivate());
+        $menuFactory = new MenuFactory();
+        $rootMenu = new MenuItem('root', $menuFactory);
+        $existingHotelMenu = new MenuItem('酒店管理', $menuFactory);
+        $rootMenu->addChild($existingHotelMenu);
+
+        $adminMenu = $this->getAdminMenu();
+        $adminMenu($rootMenu);
+
+        $hotelManagementMenu = $rootMenu->getChild('酒店管理');
+        $this->assertSame($existingHotelMenu, $hotelManagementMenu);
+
+        $this->assertNotNull($hotelManagementMenu->getChild('酒店档案'));
+        $this->assertNotNull($hotelManagementMenu->getChild('房型管理'));
     }
 }

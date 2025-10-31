@@ -34,6 +34,7 @@ class AttributeControllerLoader extends Loader implements RoutingAutoLoaderInter
     {
         $collection = new RouteCollection();
         $collection->addCollection($this->controllerLoader->load(RoomTypesController::class));
+
         return $collection;
     }
 }

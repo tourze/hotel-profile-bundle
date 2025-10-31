@@ -3,235 +3,100 @@
 namespace Tourze\HotelProfileBundle\DataFixtures;
 
 use Doctrine\Bundle\FixturesBundle\Fixture;
-use Doctrine\Bundle\FixturesBundle\FixtureGroupInterface;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
+use Symfony\Component\DependencyInjection\Attribute\When;
 use Tourze\HotelProfileBundle\Entity\Hotel;
 use Tourze\HotelProfileBundle\Entity\RoomType;
 use Tourze\HotelProfileBundle\Enum\RoomTypeStatusEnum;
 
-/**
- * 房型数据填充
- */
-class RoomTypeFixtures extends Fixture implements DependentFixtureInterface, FixtureGroupInterface
+#[When(env: 'test')]
+class RoomTypeFixtures extends Fixture implements DependentFixtureInterface
 {
-    // 使用常量定义引用名称
-    public const ROOM_TYPE_REFERENCE_PREFIX = 'room-type-';
-    
+    public const LUXURY_SUITE_REFERENCE = 'luxury-suite';
+    public const BUSINESS_ROOM_REFERENCE = 'business-room';
+    public const STANDARD_ROOM_REFERENCE = 'standard-room';
+    public const DISABLED_ROOM_REFERENCE = 'disabled-room';
+
     public function load(ObjectManager $manager): void
     {
-        // 为5星级酒店创建房型
-        $this->createRoomTypesForHotel(
-            $manager, 
-            $this->getReference(HotelFixtures::FIVE_STAR_HOTEL_REFERENCE, Hotel::class),
-            [
-                [
-                    'name' => '豪华大床房',
-                    'area' => 45.0,
-                    'bedType' => '特大床',
-                    'maxGuests' => 2,
-                    'breakfastCount' => 2,
-                    'photos' => [
-                        'luxury-king-room-1.jpg',
-                        'luxury-king-room-2.jpg',
-                    ],
-                    'description' => '豪华大床房配备特大床，面积宽敞，提供舒适的居住体验。房间内设有mini吧台、高速WiFi、55英寸智能电视等设施。',
-                ],
-                [
-                    'name' => '行政套房',
-                    'area' => 65.0,
-                    'bedType' => '特大床',
-                    'maxGuests' => 2,
-                    'breakfastCount' => 2,
-                    'photos' => [
-                        'luxury-suite-1.jpg',
-                        'luxury-suite-2.jpg',
-                    ],
-                    'description' => '行政套房设有独立的客厅和卧室，提供专属行政酒廊服务，享有城市美景。',
-                ],
-                [
-                    'name' => '豪华双床房',
-                    'area' => 50.0,
-                    'bedType' => '两张单人床',
-                    'maxGuests' => 3,
-                    'breakfastCount' => 2,
-                    'photos' => [
-                        'luxury-twin-room-1.jpg',
-                        'luxury-twin-room-2.jpg',
-                    ],
-                    'description' => '豪华双床房配备两张舒适单人床，适合商务出行或家庭入住。',
-                ],
-                [
-                    'name' => '总统套房',
-                    'area' => 120.0,
-                    'bedType' => '特大床',
-                    'maxGuests' => 4,
-                    'breakfastCount' => 4,
-                    'photos' => [
-                        'presidential-suite-1.jpg',
-                        'presidential-suite-2.jpg',
-                    ],
-                    'description' => '总统套房是酒店最高级别的住宿选择，设有多个卧室、会客厅和餐厅，提供专属管家服务。',
-                ],
-            ]
-        );
-        
-        // 为4星级酒店创建房型
-        $this->createRoomTypesForHotel(
-            $manager, 
-            $this->getReference(HotelFixtures::FOUR_STAR_HOTEL_REFERENCE, Hotel::class),
-            [
-                [
-                    'name' => '商务大床房',
-                    'area' => 35.0,
-                    'bedType' => '大床',
-                    'maxGuests' => 2,
-                    'breakfastCount' => 2,
-                    'photos' => [
-                        'business-king-room-1.jpg',
-                        'business-king-room-2.jpg',
-                    ],
-                    'description' => '商务大床房配备舒适大床，提供商务人士所需的各种便利设施。',
-                ],
-                [
-                    'name' => '商务双床房',
-                    'area' => 38.0,
-                    'bedType' => '两张单人床',
-                    'maxGuests' => 3,
-                    'breakfastCount' => 2,
-                    'photos' => [
-                        'business-twin-room-1.jpg',
-                        'business-twin-room-2.jpg',
-                    ],
-                    'description' => '商务双床房适合同事或朋友共同入住，配备两张舒适单人床。',
-                ],
-                [
-                    'name' => '商务套房',
-                    'area' => 55.0,
-                    'bedType' => '大床',
-                    'maxGuests' => 2,
-                    'breakfastCount' => 2,
-                    'photos' => [
-                        'business-suite-1.jpg',
-                        'business-suite-2.jpg',
-                    ],
-                    'description' => '商务套房设有独立的工作区和休息区，提供宽敞舒适的商务环境。',
-                ],
-            ]
-        );
-        
-        // 为3星级酒店创建房型
-        $this->createRoomTypesForHotel(
-            $manager, 
-            $this->getReference(HotelFixtures::THREE_STAR_HOTEL_REFERENCE, Hotel::class),
-            [
-                [
-                    'name' => '标准大床房',
-                    'area' => 25.0,
-                    'bedType' => '大床',
-                    'maxGuests' => 2,
-                    'breakfastCount' => 0,
-                    'photos' => [
-                        'standard-king-room-1.jpg',
-                        'standard-king-room-2.jpg',
-                    ],
-                    'description' => '标准大床房提供基本的住宿需求，配备舒适大床和必要设施。',
-                ],
-                [
-                    'name' => '标准双床房',
-                    'area' => 28.0,
-                    'bedType' => '两张单人床',
-                    'maxGuests' => 2,
-                    'breakfastCount' => 0,
-                    'photos' => [
-                        'standard-twin-room-1.jpg',
-                        'standard-twin-room-2.jpg',
-                    ],
-                    'description' => '标准双床房配备两张舒适单人床，适合商务出行或好友同行。',
-                ],
-                [
-                    'name' => '经济家庭房',
-                    'area' => 32.0,
-                    'bedType' => '一张大床和一张单人床',
-                    'maxGuests' => 3,
-                    'breakfastCount' => 0,
-                    'photos' => [
-                        'economy-family-room-1.jpg',
-                        'economy-family-room-2.jpg',
-                    ],
-                    'description' => '经济家庭房适合小型家庭入住，配备一张大床和一张单人床。',
-                ],
-                [
-                    'name' => '商务大床房（含早）',
-                    'area' => 25.0,
-                    'bedType' => '大床',
-                    'maxGuests' => 2,
-                    'breakfastCount' => 2,
-                    'photos' => [
-                        'standard-king-room-breakfast-1.jpg',
-                        'standard-king-room-breakfast-2.jpg',
-                    ],
-                    'description' => '商务大床房提供基本的住宿需求和早餐服务，配备舒适大床和必要设施。',
-                    'status' => RoomTypeStatusEnum::DISABLED,
-                ],
-            ]
-        );
-        
+        $luxuryHotel = $this->getReference(HotelFixtures::LUXURY_HOTEL_REFERENCE, Hotel::class);
+
+        $businessHotel = $this->getReference(HotelFixtures::BUSINESS_HOTEL_REFERENCE, Hotel::class);
+
+        $budgetHotel = $this->getReference(HotelFixtures::BUDGET_HOTEL_REFERENCE, Hotel::class);
+
+        $luxurySuite = new RoomType();
+        $luxurySuite->setHotel($luxuryHotel);
+        $luxurySuite->setName('总统套房');
+        $luxurySuite->setCode('PRES001');
+        $luxurySuite->setArea(150.0);
+        $luxurySuite->setBedType('特大床 + 沙发床');
+        $luxurySuite->setMaxGuests(4);
+        $luxurySuite->setBreakfastCount(2);
+        $luxurySuite->setPhotos([
+            'https://img17.360buyimg.com/n1/jfs/t1/65432/43/56789/456789/5eaf506hE4d5e6f7g/a0b1c2d3e4f5g6h7.jpg',
+            'https://img18.360buyimg.com/n1/jfs/t1/54321/54/67890/567890/5eb0617iE5e6f7g8h/b1c2d3e4f5g6h7i8.jpg',
+            'https://img19.360buyimg.com/n1/jfs/t1/43210/65/78901/678901/5ec1728jE6f7g8h9i/c2d3e4f5g6h7i8j9.jpg',
+        ]);
+        $luxurySuite->setDescription('豪华总统套房，配备独立客厅、卧室，享受顶级服务');
+        $luxurySuite->setStatus(RoomTypeStatusEnum::ACTIVE);
+
+        $manager->persist($luxurySuite);
+
+        $businessRoom = new RoomType();
+        $businessRoom->setHotel($businessHotel);
+        $businessRoom->setName('商务大床房');
+        $businessRoom->setCode('BUS001');
+        $businessRoom->setArea(35.0);
+        $businessRoom->setBedType('大床');
+        $businessRoom->setMaxGuests(2);
+        $businessRoom->setBreakfastCount(1);
+        $businessRoom->setPhotos(['https://img20.360buyimg.com/n1/jfs/t1/32109/76/89012/789012/5ed2839kE7g8h9i0j/d3e4f5g6h7i8j9k0.jpg']);
+        $businessRoom->setDescription('专为商务人士设计，配备办公区域');
+        $businessRoom->setStatus(RoomTypeStatusEnum::ACTIVE);
+
+        $manager->persist($businessRoom);
+
+        $standardRoom = new RoomType();
+        $standardRoom->setHotel($budgetHotel);
+        $standardRoom->setName('标准双床房');
+        $standardRoom->setCode('STD001');
+        $standardRoom->setArea(25.0);
+        $standardRoom->setBedType('双床');
+        $standardRoom->setMaxGuests(2);
+        $standardRoom->setBreakfastCount(0);
+        $standardRoom->setPhotos(['https://img21.360buyimg.com/n1/jfs/t1/21098/87/90123/890123/5ee394alE8h9i0j1k/e4f5g6h7i8j9k0l1.jpg']);
+        $standardRoom->setDescription('经济实用的标准客房');
+        $standardRoom->setStatus(RoomTypeStatusEnum::ACTIVE);
+
+        $manager->persist($standardRoom);
+
+        $disabledRoom = new RoomType();
+        $disabledRoom->setHotel($luxuryHotel);
+        $disabledRoom->setName('装修中房型');
+        $disabledRoom->setCode('RENO001');
+        $disabledRoom->setArea(40.0);
+        $disabledRoom->setBedType('大床');
+        $disabledRoom->setMaxGuests(2);
+        $disabledRoom->setBreakfastCount(1);
+        $disabledRoom->setDescription('正在装修升级中，暂不开放');
+        $disabledRoom->setStatus(RoomTypeStatusEnum::DISABLED);
+
+        $manager->persist($disabledRoom);
+
         $manager->flush();
-    }
-    
-    /**
-     * 为特定酒店创建多个房型
-     *
-     * @param ObjectManager $manager 实体管理器
-     * @param Hotel $hotel 关联的酒店实体
-     * @param array $roomTypesData 房型数据数组
-     */
-    private function createRoomTypesForHotel(ObjectManager $manager, Hotel $hotel, array $roomTypesData): void
-    {
-        static $referenceCounter = 1;
-        
-        foreach ($roomTypesData as $index => $data) {
-            $roomType = new RoomType();
-            $roomType->setHotel($hotel);
-            $roomType->setName($data['name']);
-            $roomType->setArea($data['area']);
-            $roomType->setBedType($data['bedType']);
-            $roomType->setMaxGuests($data['maxGuests']);
-            $roomType->setBreakfastCount($data['breakfastCount']);
-            $roomType->setPhotos($data['photos']);
-            $roomType->setDescription($data['description']);
-            
-            // 设置状态，默认为ACTIVE
-            $roomType->setStatus($data['status'] ?? RoomTypeStatusEnum::ACTIVE);
-            
-            $manager->persist($roomType);
-            
-            // 添加引用，使用唯一递增的引用计数器
-            $this->addReference(self::ROOM_TYPE_REFERENCE_PREFIX . $referenceCounter, $roomType);
-            $referenceCounter++;
-        }
+
+        $this->addReference(self::LUXURY_SUITE_REFERENCE, $luxurySuite);
+        $this->addReference(self::BUSINESS_ROOM_REFERENCE, $businessRoom);
+        $this->addReference(self::STANDARD_ROOM_REFERENCE, $standardRoom);
+        $this->addReference(self::DISABLED_ROOM_REFERENCE, $disabledRoom);
     }
 
-    /**
-     * 定义依赖的Fixture类
-     *
-     * @return array<class-string<\Doctrine\Common\DataFixtures\FixtureInterface>>
-     */
     public function getDependencies(): array
     {
         return [
             HotelFixtures::class,
         ];
-    }
-
-    /**
-     * 返回此Fixture所属的组名
-     *
-     * @return string[]
-     */
-    public static function getGroups(): array
-    {
-        return ['room', 'hotel-profile', 'default'];
     }
 }

@@ -2,13 +2,19 @@
 
 namespace Tourze\HotelProfileBundle\Tests\Enum;
 
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tourze\EnumExtra\Itemable;
 use Tourze\EnumExtra\Labelable;
 use Tourze\EnumExtra\Selectable;
 use Tourze\HotelProfileBundle\Enum\HotelStatusEnum;
+use Tourze\PHPUnitEnum\AbstractEnumTestCase;
 
-class HotelStatusEnumTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(HotelStatusEnum::class)]
+final class HotelStatusEnumTest extends AbstractEnumTestCase
 {
     public function testEnumCases(): void
     {
@@ -34,18 +40,22 @@ class HotelStatusEnumTest extends TestCase
         $this->assertInstanceOf(Selectable::class, $enum);
     }
 
-    public function testGetLabelForOperating(): void
+    #[DataProvider('enumValueAndLabelProvider')]
+    public function testEnumValueAndLabel(HotelStatusEnum $enum, string $expectedValue, string $expectedLabel): void
     {
-        $label = HotelStatusEnum::OPERATING->getLabel();
-
-        $this->assertSame('运营中', $label);
+        $this->assertSame($expectedValue, $enum->value);
+        $this->assertSame($expectedLabel, $enum->getLabel());
     }
 
-    public function testGetLabelForSuspended(): void
+    /**
+     * @return array<string, array{HotelStatusEnum, string, string}>
+     */
+    public static function enumValueAndLabelProvider(): array
     {
-        $label = HotelStatusEnum::SUSPENDED->getLabel();
-
-        $this->assertSame('暂停合作', $label);
+        return [
+            'operating' => [HotelStatusEnum::OPERATING, 'operating', '运营中'],
+            'suspended' => [HotelStatusEnum::SUSPENDED, 'suspended', '暂停合作'],
+        ];
     }
 
     public function testAllCasesHaveLabels(): void
@@ -76,6 +86,40 @@ class HotelStatusEnumTest extends TestCase
         $this->assertNull($invalid);
     }
 
+    public function testFromThrowsExceptionForInvalidValue(): void
+    {
+        $this->expectException(\ValueError::class);
+        HotelStatusEnum::from('invalid');
+    }
+
+    public function testTryFromReturnsNullForInvalidValue(): void
+    {
+        $result = HotelStatusEnum::tryFrom('nonexistent');
+        $this->assertNull($result);
+    }
+
+    public function testValueUniqueness(): void
+    {
+        $values = [];
+        foreach (HotelStatusEnum::cases() as $case) {
+            $values[] = $case->value;
+        }
+
+        $uniqueValues = array_unique($values);
+        $this->assertCount(count($values), $uniqueValues, 'All enum values must be unique');
+    }
+
+    public function testLabelUniqueness(): void
+    {
+        $labels = [];
+        foreach (HotelStatusEnum::cases() as $case) {
+            $labels[] = $case->getLabel();
+        }
+
+        $uniqueLabels = array_unique($labels);
+        $this->assertCount(count($labels), $uniqueLabels, 'All enum labels must be unique');
+    }
+
     public function testUsesTraits(): void
     {
         // 测试枚举类使用了 ItemTrait 和 SelectTrait
@@ -95,16 +139,15 @@ class HotelStatusEnumTest extends TestCase
     public function testEnumEquality(): void
     {
         $operating1 = HotelStatusEnum::OPERATING;
-        $suspended = HotelStatusEnum::SUSPENDED;
 
         // 测试枚举值的比较
         $this->assertSame($operating1, HotelStatusEnum::OPERATING);
-        $this->assertNotSame($operating1, $suspended);
+
+        // 测试枚举值的数量
+        $this->assertCount(2, HotelStatusEnum::cases());
     }
 
-    /**
-     * @dataProvider statusMatchProvider
-     */
+    #[DataProvider('statusMatchProvider')]
     public function testEnumInSwitch(HotelStatusEnum $status, string $expected): void
     {
         $result = match ($status) {
@@ -118,11 +161,22 @@ class HotelStatusEnumTest extends TestCase
     /**
      * @return array<string, array{HotelStatusEnum, string}>
      */
-    public function statusMatchProvider(): array
+    public static function statusMatchProvider(): array
     {
         return [
             'operating' => [HotelStatusEnum::OPERATING, 'operating_matched'],
             'suspended' => [HotelStatusEnum::SUSPENDED, 'suspended_matched'],
         ];
+    }
+
+    public function testToArray(): void
+    {
+        $array = HotelStatusEnum::OPERATING->toArray();
+
+        $this->assertIsArray($array);
+        $this->assertArrayHasKey('value', $array);
+        $this->assertArrayHasKey('label', $array);
+        $this->assertEquals('operating', $array['value']);
+        $this->assertEquals('运营中', $array['label']);
     }
 }

@@ -11,7 +11,7 @@ use Tourze\HotelProfileBundle\Repository\RoomTypeRepository;
 /**
  * 房型API控制器
  */
-class RoomTypesController extends AbstractController
+final class RoomTypesController extends AbstractController
 {
     /**
      * 获取指定酒店的房型列表
@@ -20,11 +20,11 @@ class RoomTypesController extends AbstractController
     public function __invoke(Request $request, RoomTypeRepository $roomTypeRepository): JsonResponse
     {
         $hotelId = $request->query->get('hotelId');
-        
-        if (!$hotelId) {
+
+        if (null === $hotelId || '' === $hotelId || false === $hotelId) {
             return $this->json([]);
         }
-        
+
         $roomTypes = $roomTypeRepository
             ->createQueryBuilder('rt')
             ->select('rt.id', 'rt.name')
@@ -32,8 +32,9 @@ class RoomTypesController extends AbstractController
             ->setParameter('hotelId', $hotelId)
             ->orderBy('rt.name', 'ASC')
             ->getQuery()
-            ->getArrayResult();
-            
+            ->getArrayResult()
+        ;
+
         return $this->json($roomTypes);
     }
 }

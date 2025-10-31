@@ -21,7 +21,7 @@ enum HotelStatusEnum: string implements Labelable, Itemable, Selectable
 
     public function getLabel(): string
     {
-        return match($this) {
+        return match ($this) {
             self::OPERATING => '运营中',
             self::SUSPENDED => '暂停合作',
         };

@@ -3,6 +3,7 @@
 namespace Tourze\HotelProfileBundle\Service;
 
 use Doctrine\ORM\EntityManagerInterface;
+use Monolog\Attribute\WithMonologChannel;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx as XlsxReader;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -16,25 +17,26 @@ use Tourze\HotelProfileBundle\Repository\HotelRepository;
 /**
  * 酒店数据导入导出服务
  */
-class HotelImportExportService
+#[WithMonologChannel(channel: 'hotel_profile')]
+readonly class HotelImportExportService
 {
     public function __construct(
-        private readonly EntityManagerInterface $entityManager,
-        private readonly HotelRepository $hotelRepository,
-        private readonly LoggerInterface $logger,
+        private EntityManagerInterface $entityManager,
+        private HotelRepository $hotelRepository,
+        private LoggerInterface $logger,
     ) {
     }
 
     /**
      * 导出酒店数据到Excel
      *
-     * @return array 临时文件路径和文件名
+     * @return array{file_path: string, file_name: string, disposition: string} 临时文件路径和文件名
      */
     public function exportHotelsToExcel(): array
     {
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
-        
+
         // 设置表头
         $sheet->setCellValue('A1', 'ID');
         $sheet->setCellValue('B1', '酒店名称');
@@ -44,14 +46,14 @@ class HotelImportExportService
         $sheet->setCellValue('F1', '联系电话');
         $sheet->setCellValue('G1', '联系邮箱');
         $sheet->setCellValue('H1', '状态');
-        
+
         // 样式
         $sheet->getStyle('A1:H1')->getFont()->setBold(true);
-        
+
         // 添加数据
         $hotels = $this->hotelRepository->findAll();
         $row = 2;
-        
+
         foreach ($hotels as $hotel) {
             $sheet->setCellValue('A' . $row, $hotel->getId());
             $sheet->setCellValue('B' . $row, $hotel->getName());
@@ -61,10 +63,10 @@ class HotelImportExportService
             $sheet->setCellValue('F' . $row, $hotel->getPhone());
             $sheet->setCellValue('G' . $row, $hotel->getEmail());
             $sheet->setCellValue('H' . $row, $hotel->getStatus()->getLabel());
-            
-            $row++;
+
+            ++$row;
         }
-        
+
         // 设置列宽
         $sheet->getColumnDimension('A')->setWidth(10);
         $sheet->getColumnDimension('B')->setWidth(25);
@@ -74,31 +76,31 @@ class HotelImportExportService
         $sheet->getColumnDimension('F')->setWidth(15);
         $sheet->getColumnDimension('G')->setWidth(25);
         $sheet->getColumnDimension('H')->setWidth(15);
-        
+
         // 创建写入器并设置响应
         $writer = new Xlsx($spreadsheet);
         $fileName = '酒店列表_' . date('Y-m-d_H-i-s') . '.xlsx';
-        
+
         $tempFile = tempnam(sys_get_temp_dir(), 'hotel_export_');
         $writer->save($tempFile);
-        
+
         return [
             'file_path' => $tempFile,
             'file_name' => $fileName,
-            'disposition' => ResponseHeaderBag::DISPOSITION_ATTACHMENT
+            'disposition' => ResponseHeaderBag::DISPOSITION_ATTACHMENT,
         ];
     }
-    
+
     /**
      * 创建Excel导入模板
      *
-     * @return array 临时文件路径和文件名
+     * @return array{file_path: string, file_name: string, disposition: string} 临时文件路径和文件名
      */
     public function createImportTemplate(): array
     {
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
-        
+
         // 设置表头
         $sheet->setCellValue('A1', 'ID (导入时不需填写)');
         $sheet->setCellValue('B1', '酒店名称 (必填)');
@@ -108,10 +110,10 @@ class HotelImportExportService
         $sheet->setCellValue('F1', '联系电话 (必填)');
         $sheet->setCellValue('G1', '联系邮箱');
         $sheet->setCellValue('H1', '状态 (导入时默认为"运营中")');
-        
+
         // 样式
         $sheet->getStyle('A1:H1')->getFont()->setBold(true);
-        
+
         // 设置列宽
         $sheet->getColumnDimension('A')->setWidth(20);
         $sheet->getColumnDimension('B')->setWidth(25);
@@ -121,79 +123,78 @@ class HotelImportExportService
         $sheet->getColumnDimension('F')->setWidth(15);
         $sheet->getColumnDimension('G')->setWidth(25);
         $sheet->getColumnDimension('H')->setWidth(25);
-        
+
         // 创建写入器并设置响应
         $writer = new Xlsx($spreadsheet);
         $fileName = '酒店导入模板.xlsx';
-        
+
         $tempFile = tempnam(sys_get_temp_dir(), 'hotel_template_');
         $writer->save($tempFile);
-        
+
         return [
             'file_path' => $tempFile,
             'file_name' => $fileName,
-            'disposition' => ResponseHeaderBag::DISPOSITION_ATTACHMENT
+            'disposition' => ResponseHeaderBag::DISPOSITION_ATTACHMENT,
         ];
     }
-    
+
     /**
      * 从Excel导入酒店数据
      *
-     * @param UploadedFile $excelFile
-     * @return array 导入结果，包含导入数量和错误信息
+     * @return array{success: bool, import_count: int, errors: array<string>} 导入结果，包含导入数量和错误信息
      */
     public function importHotelsFromExcel(UploadedFile $excelFile): array
     {
         $result = [
             'success' => true,
             'import_count' => 0,
-            'errors' => []
+            'errors' => [],
         ];
-        
+
         try {
             $reader = new XlsxReader();
             $spreadsheet = $reader->load($excelFile->getPathname());
             $worksheet = $spreadsheet->getActiveSheet();
             $highestRow = $worksheet->getHighestRow();
-            
+
             $importCount = 0;
             $errors = [];
-            
+
             // 从第2行开始，第1行是表头
-            for ($row = 2; $row <= $highestRow; $row++) {
-                $hotelName = $worksheet->getCell('B'.$row)->getValue();
-                $address = $worksheet->getCell('C'.$row)->getValue();
-                $starLevel = (int)$worksheet->getCell('D'.$row)->getValue();
-                $contactPerson = $worksheet->getCell('E'.$row)->getValue();
-                $phone = $worksheet->getCell('F'.$row)->getValue();
-                $email = $worksheet->getCell('G'.$row)->getValue();
-                
+            for ($row = 2; $row <= $highestRow; ++$row) {
+                $hotelName = $worksheet->getCell('B' . $row)->getValue();
+                $address = $worksheet->getCell('C' . $row)->getValue();
+                $starLevel = (int) $worksheet->getCell('D' . $row)->getValue();
+                $contactPerson = $worksheet->getCell('E' . $row)->getValue();
+                $phone = $worksheet->getCell('F' . $row)->getValue();
+                $email = $worksheet->getCell('G' . $row)->getValue();
+
                 // 数据验证
-                if (empty($hotelName) || empty($address) || empty($contactPerson) || empty($phone)) {
+                if (null === $hotelName || '' === $hotelName || null === $address || '' === $address || null === $contactPerson || '' === $contactPerson || null === $phone || '' === $phone) {
                     $errors[] = "第 {$row} 行数据不完整";
                     continue;
                 }
-                
+
                 if ($starLevel < 1 || $starLevel > 5) {
                     $errors[] = "第 {$row} 行星级数据无效";
                     continue;
                 }
-                
+
                 try {
                     // 检查是否已存在同名酒店
                     $existingHotel = $this->hotelRepository->findOneBy(['name' => $hotelName]);
-                    
-                    if ($existingHotel !== null) {
+
+                    if (null !== $existingHotel) {
                         // 更新现有酒店
                         $existingHotel->setAddress($address);
                         $existingHotel->setStarLevel($starLevel);
                         $existingHotel->setContactPerson($contactPerson);
                         $existingHotel->setPhone($phone);
                         $existingHotel->setEmail($email);
-                        
+
                         $this->logger->info('更新酒店信息', [
                             'id' => $existingHotel->getId(),
-                            'name' => $hotelName
+                            'name' => $hotelName,
                         ]);
                     } else {
                         // 创建新酒店
@@ -205,37 +206,36 @@ class HotelImportExportService
                         $hotel->setPhone($phone);
                         $hotel->setEmail($email);
                         $hotel->setStatus(HotelStatusEnum::OPERATING);
-                        
+
                         $this->entityManager->persist($hotel);
-                        
+
                         $this->logger->info('创建新酒店', [
-                            'name' => $hotelName
+                            'name' => $hotelName,
                         ]);
                     }
-                    
-                    $importCount++;
+
+                    ++$importCount;
                 } catch (\Throwable $e) {
                     $errors[] = "第 {$row} 行处理失败: " . $e->getMessage();
                     $this->logger->error('导入酒店数据失败', [
-                        'row' => $row, 
-                        'name' => $hotelName, 
-                        'error' => $e->getMessage()
+                        'row' => $row,
+                        'name' => $hotelName,
+                        'error' => $e->getMessage(),
                     ]);
                 }
             }
-            
+
             $this->entityManager->flush();
-            
+
             $result['import_count'] = $importCount;
             $result['errors'] = $errors;
-            
+
             return $result;
-            
         } catch (\Throwable $e) {
             $result['success'] = false;
             $result['errors'][] = '导入过程发生错误: ' . $e->getMessage();
             $this->logger->error('Excel导入失败', ['error' => $e->getMessage()]);
-            
+
             return $result;
         }
     }

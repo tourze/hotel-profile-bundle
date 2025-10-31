@@ -4,7 +4,6 @@ namespace Tourze\HotelProfileBundle\Entity;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Stringable;
 use Symfony\Component\Validator\Constraints as Assert;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
 use Tourze\HotelProfileBundle\Enum\RoomTypeStatusEnum;
@@ -12,10 +11,11 @@ use Tourze\HotelProfileBundle\Repository\RoomTypeRepository;
 
 #[ORM\Entity(repositoryClass: RoomTypeRepository::class)]
 #[ORM\Table(name: 'ims_hotel_room_type', options: ['comment' => '酒店房型信息表'])]
-#[ORM\Index(name: 'room_type_idx_hotel_name', columns: ['hotel_id', 'name'])]
-class RoomType implements Stringable
+#[ORM\Index(name: 'ims_hotel_room_type_room_type_idx_hotel_name', columns: ['hotel_id', 'name'])]
+class RoomType implements \Stringable
 {
     use TimestampableAware;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: Types::BIGINT, options: ['comment' => '主键ID'])]
@@ -51,11 +51,19 @@ class RoomType implements Stringable
     #[Assert\PositiveOrZero]
     private int $breakfastCount = 0;
 
+    /**
+     * @var list<string>
+     */
     #[ORM\Column(type: Types::JSON, nullable: true, options: ['comment' => '房型照片URL数组'])]
+    #[Assert\Type(type: 'array')]
     private array $photos = [];
 
     #[ORM\Column(type: Types::TEXT, nullable: true, options: ['comment' => '房型描述'])]
-    private ?string $description = null;#[ORM\Column(type: Types::STRING, length: 20, enumType: RoomTypeStatusEnum::class, options: ['comment' => '状态'])]
+    #[Assert\Length(max: 65535)]
+    private ?string $description = null;
+
+    #[ORM\Column(type: Types::STRING, length: 20, enumType: RoomTypeStatusEnum::class, options: ['comment' => '状态'])]
+    #[Assert\Choice(callback: [RoomTypeStatusEnum::class, 'cases'])]
     private RoomTypeStatusEnum $status = RoomTypeStatusEnum::ACTIVE;
 
     public function __toString(): string
@@ -73,10 +81,9 @@ class RoomType implements Stringable
         return $this->hotel;
     }
 
-    public function setHotel(?Hotel $hotel): self
+    public function setHotel(?Hotel $hotel): void
     {
         $this->hotel = $hotel;
-        return $this;
     }
 
     public function getName(): string
@@ -84,10 +91,9 @@ class RoomType implements Stringable
         return $this->name;
     }
 
-    public function setName(string $name): self
+    public function setName(string $name): void
     {
         $this->name = $name;
-        return $this;
     }
 
     public function getCode(): ?string
@@ -95,10 +101,9 @@ class RoomType implements Stringable
         return $this->code;
     }
 
-    public function setCode(?string $code): self
+    public function setCode(?string $code): void
     {
         $this->code = $code;
-        return $this;
     }
 
     public function getArea(): float
@@ -106,10 +111,9 @@ class RoomType implements Stringable
         return $this->area;
     }
 
-    public function setArea(float $area): self
+    public function setArea(float $area): void
     {
         $this->area = $area;
-        return $this;
     }
 
     public function getBedType(): string
@@ -117,10 +121,9 @@ class RoomType implements Stringable
         return $this->bedType;
     }
 
-    public function setBedType(string $bedType): self
+    public function setBedType(string $bedType): void
     {
         $this->bedType = $bedType;
-        return $this;
     }
 
     public function getMaxGuests(): int
@@ -128,10 +131,9 @@ class RoomType implements Stringable
         return $this->maxGuests;
     }
 
-    public function setMaxGuests(int $maxGuests): self
+    public function setMaxGuests(int $maxGuests): void
     {
         $this->maxGuests = $maxGuests;
-        return $this;
     }
 
     public function getBreakfastCount(): int
@@ -139,21 +141,25 @@ class RoomType implements Stringable
         return $this->breakfastCount;
     }
 
-    public function setBreakfastCount(int $breakfastCount): self
+    public function setBreakfastCount(int $breakfastCount): void
     {
         $this->breakfastCount = $breakfastCount;
-        return $this;
     }
 
+    /**
+     * @return array<string>
+     */
     public function getPhotos(): array
     {
         return $this->photos;
     }
 
-    public function setPhotos(array $photos): self
+    /**
+     * @param list<string> $photos
+     */
+    public function setPhotos(array $photos): void
     {
         $this->photos = $photos;
-        return $this;
     }
 
     public function getDescription(): ?string
@@ -161,17 +167,18 @@ class RoomType implements Stringable
         return $this->description;
     }
 
-    public function setDescription(?string $description): self
+    public function setDescription(?string $description): void
     {
         $this->description = $description;
-        return $this;
-    }public function getStatus(): RoomTypeStatusEnum
+    }
+
+    public function getStatus(): RoomTypeStatusEnum
     {
         return $this->status;
     }
 
-    public function setStatus(RoomTypeStatusEnum $status): self
+    public function setStatus(RoomTypeStatusEnum $status): void
     {
         $this->status = $status;
-        return $this;
-    }}
+    }
+}

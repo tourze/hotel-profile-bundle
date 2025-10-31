@@ -2,13 +2,19 @@
 
 namespace Tourze\HotelProfileBundle\Tests\Enum;
 
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tourze\EnumExtra\Itemable;
 use Tourze\EnumExtra\Labelable;
 use Tourze\EnumExtra\Selectable;
 use Tourze\HotelProfileBundle\Enum\RoomTypeStatusEnum;
+use Tourze\PHPUnitEnum\AbstractEnumTestCase;
 
-class RoomTypeStatusEnumTest extends TestCase
+/**
+ * @internal
+ */
+#[CoversClass(RoomTypeStatusEnum::class)]
+final class RoomTypeStatusEnumTest extends AbstractEnumTestCase
 {
     public function testEnumCases(): void
     {
@@ -34,18 +40,22 @@ class RoomTypeStatusEnumTest extends TestCase
         $this->assertInstanceOf(Selectable::class, $enum);
     }
 
-    public function testGetLabelForActive(): void
+    #[DataProvider('enumValueAndLabelProvider')]
+    public function testEnumValueAndLabel(RoomTypeStatusEnum $enum, string $expectedValue, string $expectedLabel): void
     {
-        $label = RoomTypeStatusEnum::ACTIVE->getLabel();
-
-        $this->assertSame('可用', $label);
+        $this->assertSame($expectedValue, $enum->value);
+        $this->assertSame($expectedLabel, $enum->getLabel());
     }
 
-    public function testGetLabelForDisabled(): void
+    /**
+     * @return array<string, array{RoomTypeStatusEnum, string, string}>
+     */
+    public static function enumValueAndLabelProvider(): array
     {
-        $label = RoomTypeStatusEnum::DISABLED->getLabel();
-
-        $this->assertSame('停用', $label);
+        return [
+            'active' => [RoomTypeStatusEnum::ACTIVE, 'active', '可用'],
+            'disabled' => [RoomTypeStatusEnum::DISABLED, 'disabled', '停用'],
+        ];
     }
 
     public function testAllCasesHaveLabels(): void
@@ -76,6 +86,40 @@ class RoomTypeStatusEnumTest extends TestCase
         $this->assertNull($invalid);
     }
 
+    public function testFromThrowsExceptionForInvalidValue(): void
+    {
+        $this->expectException(\ValueError::class);
+        RoomTypeStatusEnum::from('invalid');
+    }
+
+    public function testTryFromReturnsNullForInvalidValue(): void
+    {
+        $result = RoomTypeStatusEnum::tryFrom('nonexistent');
+        $this->assertNull($result);
+    }
+
+    public function testValueUniqueness(): void
+    {
+        $values = [];
+        foreach (RoomTypeStatusEnum::cases() as $case) {
+            $values[] = $case->value;
+        }
+
+        $uniqueValues = array_unique($values);
+        $this->assertCount(count($values), $uniqueValues, 'All enum values must be unique');
+    }
+
+    public function testLabelUniqueness(): void
+    {
+        $labels = [];
+        foreach (RoomTypeStatusEnum::cases() as $case) {
+            $labels[] = $case->getLabel();
+        }
+
+        $uniqueLabels = array_unique($labels);
+        $this->assertCount(count($labels), $uniqueLabels, 'All enum labels must be unique');
+    }
+
     public function testUsesTraits(): void
     {
         // 测试枚举类使用了 ItemTrait 和 SelectTrait
@@ -95,16 +139,15 @@ class RoomTypeStatusEnumTest extends TestCase
     public function testEnumEquality(): void
     {
         $active1 = RoomTypeStatusEnum::ACTIVE;
-        $disabled = RoomTypeStatusEnum::DISABLED;
 
         // 测试枚举值的比较
         $this->assertSame($active1, RoomTypeStatusEnum::ACTIVE);
-        $this->assertNotSame($active1, $disabled);
+
+        // 测试枚举值的数量
+        $this->assertCount(2, RoomTypeStatusEnum::cases());
     }
 
-    /**
-     * @dataProvider statusMatchProvider
-     */
+    #[DataProvider('statusMatchProvider')]
     public function testEnumInSwitch(RoomTypeStatusEnum $status, string $expected): void
     {
         $result = match ($status) {
@@ -118,11 +161,22 @@ class RoomTypeStatusEnumTest extends TestCase
     /**
      * @return array<string, array{RoomTypeStatusEnum, string}>
      */
-    public function statusMatchProvider(): array
+    public static function statusMatchProvider(): array
     {
         return [
             'active' => [RoomTypeStatusEnum::ACTIVE, 'active_matched'],
             'disabled' => [RoomTypeStatusEnum::DISABLED, 'disabled_matched'],
         ];
+    }
+
+    public function testToArray(): void
+    {
+        $array = RoomTypeStatusEnum::ACTIVE->toArray();
+
+        $this->assertIsArray($array);
+        $this->assertArrayHasKey('value', $array);
+        $this->assertArrayHasKey('label', $array);
+        $this->assertEquals('active', $array['value']);
+        $this->assertEquals('可用', $array['label']);
     }
 }

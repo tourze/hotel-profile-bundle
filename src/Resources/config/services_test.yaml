@@ -1,0 +1,7 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+
+  Tourze\HotelProfileBundle\DataFixtures\:
+    resource: '../../DataFixtures/'

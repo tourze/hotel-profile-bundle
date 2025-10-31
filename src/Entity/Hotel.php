@@ -6,18 +6,19 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Stringable;
 use Symfony\Component\Validator\Constraints as Assert;
+use Tourze\DoctrineIndexedBundle\Attribute\IndexColumn;
 use Tourze\DoctrineTimestampBundle\Traits\TimestampableAware;
+use Tourze\HotelProfileBundle\Entity\RoomType;
 use Tourze\HotelProfileBundle\Enum\HotelStatusEnum;
 use Tourze\HotelProfileBundle\Repository\HotelRepository;
 
 #[ORM\Entity(repositoryClass: HotelRepository::class)]
 #[ORM\Table(name: 'ims_hotel_profile', options: ['comment' => '酒店基础信息表'])]
-#[ORM\Index(name: 'hotel_idx_name', columns: ['name'])]
-class Hotel implements Stringable
+class Hotel implements \Stringable
 {
     use TimestampableAware;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: Types::BIGINT, options: ['comment' => '主键ID'])]
@@ -26,6 +27,7 @@ class Hotel implements Stringable
     #[ORM\Column(type: Types::STRING, length: 100, options: ['comment' => '酒店名称'])]
     #[Assert\NotBlank]
     #[Assert\Length(max: 100)]
+    #[IndexColumn]
     private string $name = '';
 
     #[ORM\Column(type: Types::STRING, length: 255, options: ['comment' => '详细地址'])]
@@ -45,6 +47,7 @@ class Hotel implements Stringable
     #[ORM\Column(type: Types::STRING, length: 20, options: ['comment' => '联系电话'])]
     #[Assert\NotBlank]
     #[Assert\Length(max: 20)]
+    #[Assert\Regex(pattern: '/^[\d\-\+\(\)\s]+$/', message: '请输入有效的电话号码')]
     private string $phone = '';
 
     #[ORM\Column(type: Types::STRING, length: 100, nullable: true, options: ['comment' => '联系邮箱'])]
@@ -52,13 +55,27 @@ class Hotel implements Stringable
     #[Assert\Length(max: 100)]
     private ?string $email = null;
 
+    /**
+     * @var list<string>
+     */
     #[ORM\Column(type: Types::JSON, nullable: true, options: ['comment' => '酒店照片URL数组'])]
+    #[Assert\Type(type: 'array')]
     private array $photos = [];
 
+    /**
+     * @var list<string>
+     */
     #[ORM\Column(type: Types::JSON, nullable: true, options: ['comment' => '设施与服务信息'])]
-    private array $facilities = [];#[ORM\Column(type: Types::STRING, length: 20, enumType: HotelStatusEnum::class, options: ['comment' => '酒店状态'])]
+    #[Assert\Type(type: 'array')]
+    private array $facilities = [];
+
+    #[ORM\Column(type: Types::STRING, length: 20, enumType: HotelStatusEnum::class, options: ['comment' => '酒店状态'])]
+    #[Assert\Choice(callback: [HotelStatusEnum::class, 'cases'])]
     private HotelStatusEnum $status = HotelStatusEnum::OPERATING;
 
+    /**
+     * @var Collection<int, RoomType>
+     */
     #[ORM\OneToMany(targetEntity: RoomType::class, mappedBy: 'hotel', fetch: 'EXTRA_LAZY', orphanRemoval: true)]
     private Collection $roomTypes;
 
@@ -82,10 +99,9 @@ class Hotel implements Stringable
         return $this->name;
     }
 
-    public function setName(string $name): self
+    public function setName(string $name): void
     {
         $this->name = $name;
-        return $this;
     }
 
     public function getAddress(): string
@@ -93,10 +109,9 @@ class Hotel implements Stringable
         return $this->address;
     }
 
-    public function setAddress(string $address): self
+    public function setAddress(string $address): void
     {
         $this->address = $address;
-        return $this;
     }
 
     public function getStarLevel(): int
@@ -104,10 +119,9 @@ class Hotel implements Stringable
         return $this->starLevel;
     }
 
-    public function setStarLevel(int $starLevel): self
+    public function setStarLevel(int $starLevel): void
     {
         $this->starLevel = $starLevel;
-        return $this;
     }
 
     public function getContactPerson(): string
@@ -115,10 +129,9 @@ class Hotel implements Stringable
         return $this->contactPerson;
     }
 
-    public function setContactPerson(string $contactPerson): self
+    public function setContactPerson(string $contactPerson): void
     {
         $this->contactPerson = $contactPerson;
-        return $this;
     }
 
     public function getPhone(): string
@@ -126,10 +139,9 @@ class Hotel implements Stringable
         return $this->phone;
     }
 
-    public function setPhone(string $phone): self
+    public function setPhone(string $phone): void
     {
         $this->phone = $phone;
-        return $this;
     }
 
     public function getEmail(): ?string
@@ -137,41 +149,51 @@ class Hotel implements Stringable
         return $this->email;
     }
 
-    public function setEmail(?string $email): self
+    public function setEmail(?string $email): void
     {
         $this->email = $email;
-        return $this;
     }
 
+    /**
+     * @return array<string>
+     */
     public function getPhotos(): array
     {
         return $this->photos;
     }
 
-    public function setPhotos(array $photos): self
+    /**
+     * @param list<string> $photos
+     */
+    public function setPhotos(array $photos): void
     {
         $this->photos = $photos;
-        return $this;
     }
 
+    /**
+     * @return array<string>
+     */
     public function getFacilities(): array
     {
         return $this->facilities;
     }
 
-    public function setFacilities(array $facilities): self
+    /**
+     * @param list<string> $facilities
+     */
+    public function setFacilities(array $facilities): void
     {
         $this->facilities = $facilities;
-        return $this;
-    }public function getStatus(): HotelStatusEnum
+    }
+
+    public function getStatus(): HotelStatusEnum
     {
         return $this->status;
     }
 
-    public function setStatus(HotelStatusEnum $status): self
+    public function setStatus(HotelStatusEnum $status): void
     {
         $this->status = $status;
-        return $this;
     }
 
     /**
@@ -201,4 +223,5 @@ class Hotel implements Stringable
         }
 
         return $this;
-    }}
+    }
+}

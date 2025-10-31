@@ -21,7 +21,7 @@ enum RoomTypeStatusEnum: string implements Labelable, Itemable, Selectable
 
     public function getLabel(): string
     {
-        return match($this) {
+        return match ($this) {
             self::ACTIVE => '可用',
             self::DISABLED => '停用',
         };
