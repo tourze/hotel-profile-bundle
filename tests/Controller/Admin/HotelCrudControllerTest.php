@@ -28,9 +28,7 @@ final class HotelCrudControllerTest extends AbstractEasyAdminControllerTestCase
 
     public function testAuthorizedAccessToHotelCrudController(): void
     {
-        $client = self::createClientWithDatabase();
-        $admin = $this->createAdminUser('admin@test.com', 'admin123');
-        $this->loginAsAdmin($client, 'admin@test.com', 'admin123');
+        $client = self::createAuthenticatedClient();
 
         $client->request('GET', '/admin/hotel-profile/hotel');
         self::getClient($client);
@@ -39,9 +37,7 @@ final class HotelCrudControllerTest extends AbstractEasyAdminControllerTestCase
 
     public function testGetEntityFqcnReturnsCorrectClass(): void
     {
-        $client = self::createClientWithDatabase();
-        $admin = $this->createAdminUser('admin@test.com', 'admin123');
-        $this->loginAsAdmin($client, 'admin@test.com', 'admin123');
+        $client = self::createAuthenticatedClient();
 
         // 通过访问 hotel 页面来间接验证 Controller 使用了正确的实体类
         $crawler = $client->request('GET', '/admin/hotel-profile/hotel');
@@ -58,9 +54,7 @@ final class HotelCrudControllerTest extends AbstractEasyAdminControllerTestCase
 
     public function testRequiredFieldsValidationOnNewForm(): void
     {
-        $client = self::createClientWithDatabase();
-        $admin = $this->createAdminUser('admin@test.com', 'admin123');
-        $this->loginAsAdmin($client, 'admin@test.com', 'admin123');
+        $client = self::createAuthenticatedClient();
 
         $crawler = $client->request('GET', '/admin/hotel-profile/hotel/new');
         self::getClient($client);
@@ -75,9 +69,7 @@ final class HotelCrudControllerTest extends AbstractEasyAdminControllerTestCase
 
     public function testSearchFunctionalityWorks(): void
     {
-        $client = self::createClientWithDatabase();
-        $admin = $this->createAdminUser('admin@test.com', 'admin123');
-        $this->loginAsAdmin($client, 'admin@test.com', 'admin123');
+        $client = self::createAuthenticatedClient();
 
         $client->request('GET', '/admin/hotel-profile/hotel', ['query' => 'test']);
         self::getClient($client);
@@ -86,9 +78,7 @@ final class HotelCrudControllerTest extends AbstractEasyAdminControllerTestCase
 
     public function testFilterFunctionalityWorks(): void
     {
-        $client = self::createClientWithDatabase();
-        $admin = $this->createAdminUser('admin@test.com', 'admin123');
-        $this->loginAsAdmin($client, 'admin@test.com', 'admin123');
+        $client = self::createAuthenticatedClient();
 
         $client->request('GET', '/admin/hotel-profile/hotel', [
             'filters' => [
@@ -103,9 +93,7 @@ final class HotelCrudControllerTest extends AbstractEasyAdminControllerTestCase
 
     public function testExportHotelsActionExists(): void
     {
-        $client = self::createClientWithDatabase();
-        $admin = $this->createAdminUser('admin@test.com', 'admin123');
-        $this->loginAsAdmin($client, 'admin@test.com', 'admin123');
+        $client = self::createAuthenticatedClient();
 
         $crawler = $client->request('GET', '/admin/hotel-profile/hotel');
         self::getClient($client);
@@ -117,9 +105,7 @@ final class HotelCrudControllerTest extends AbstractEasyAdminControllerTestCase
 
     public function testImportHotelsActionExists(): void
     {
-        $client = self::createClientWithDatabase();
-        $admin = $this->createAdminUser('admin@test.com', 'admin123');
-        $this->loginAsAdmin($client, 'admin@test.com', 'admin123');
+        $client = self::createAuthenticatedClient();
 
         $crawler = $client->request('GET', '/admin/hotel-profile/hotel');
         self::getClient($client);
@@ -131,9 +117,7 @@ final class HotelCrudControllerTest extends AbstractEasyAdminControllerTestCase
 
     public function testDownloadImportTemplateActionExists(): void
     {
-        $client = self::createClientWithDatabase();
-        $admin = $this->createAdminUser('admin@test.com', 'admin123');
-        $this->loginAsAdmin($client, 'admin@test.com', 'admin123');
+        $client = self::createAuthenticatedClient();
 
         // 这个动作通常在导入页面上
         $client->request('GET', '/admin/hotel-profile/hotel');
@@ -188,9 +172,7 @@ final class HotelCrudControllerTest extends AbstractEasyAdminControllerTestCase
 
     public function testValidationErrors(): void
     {
-        $client = self::createClientWithDatabase();
-        $admin = $this->createAdminUser('admin@test.com', 'admin123');
-        $this->loginAsAdmin($client, 'admin@test.com', 'admin123');
+        $client = self::createAuthenticatedClient();
 
         $crawler = $client->request('GET', '/admin/hotel-profile/hotel/new');
         self::getClient($client);
@@ -243,9 +225,7 @@ final class HotelCrudControllerTest extends AbstractEasyAdminControllerTestCase
 
     public function testImportHotelsForm(): void
     {
-        $client = self::createClientWithDatabase();
-        $admin = $this->createAdminUser('admin@test.com', 'admin123');
-        $this->loginAsAdmin($client, 'admin@test.com', 'admin123');
+        $client = self::createAuthenticatedClient();
 
         // 测试访问导入表单页面
         $client->request('GET', '/admin/hotel-profile/hotel?crudAction=importHotelsForm');
