@@ -221,6 +221,9 @@ final class HotelCrudController extends AbstractCrudController
     {
         if ($request->isMethod('POST')) {
             $this->processImportRequest($request);
+
+            // 导入完成后安全重定向到列表页面，避免EasyAdmin上下文丢失
+            return $this->redirectToCrudIndex($context);
         }
 
         return $this->render('@HotelProfile/admin/import.html.twig');
@@ -285,5 +288,31 @@ final class HotelCrudController extends AbstractCrudController
             $templateResult['file_name'],
             $templateResult['disposition']
         );
+    }
+
+    /**
+     * 安全地重定向到CRUD列表页面，确保EasyAdmin上下文完整
+     */
+    private function redirectToCrudIndex(?AdminContext $context = null): Response
+    {
+        // 优先使用referer保留完整上下文
+        $request = $this->requestStack->getCurrentRequest();
+        if ($request) {
+            $referer = $request->headers->get('referer');
+            if ($referer && !str_contains($referer, 'importHotelsForm') && !str_contains($referer, 'downloadImportTemplate')) {
+                return $this->redirect($referer);
+            }
+        }
+
+        // 如果没有有效的referer，使用标准的EasyAdmin重定向方式
+        if ($context) {
+            return $this->redirectToRoute('admin', [
+                'crudAction' => 'index',
+                'crudControllerFqcn' => static::class,
+            ]);
+        }
+
+        // 最后的备用方案
+        return $this->redirectToRoute('admin');
     }
 }

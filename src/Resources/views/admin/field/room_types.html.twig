@@ -33,14 +33,16 @@
                             <a href="{{ ea_url()
                                 .setController('Tourze\\HotelProfileBundle\\Controller\\Admin\\RoomTypeCrudController')
                                 .setAction('detail')
-                                .setEntityId(roomType.id) }}"
+                                .setEntityId(roomType.id)
+                                .set('referrer', ea_url().setAction('detail').setEntityId(entity.instance.id)) }}"
                                 class="btn btn-sm btn-info">
                                 <i class="fa fa-eye"></i>
                             </a>
                             <a href="{{ ea_url()
                                 .setController('Tourze\\HotelProfileBundle\\Controller\\Admin\\RoomTypeCrudController')
                                 .setAction('edit')
-                                .setEntityId(roomType.id) }}"
+                                .setEntityId(roomType.id)
+                                .set('referrer', ea_url().setAction('detail').setEntityId(entity.instance.id)) }}"
                                 class="btn btn-sm btn-primary">
                                 <i class="fa fa-edit"></i>
                             </a>

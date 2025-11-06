@@ -9,6 +9,7 @@ use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Tourze\HotelProfileBundle\Controller\Admin\RoomTypeCrudController;
 use Tourze\PHPUnitSymfonyWebTest\AbstractEasyAdminControllerTestCase;
+use Symfony\Component\Security\Core\User\InMemoryUser;
 
 /**
  * @internal
@@ -29,8 +30,7 @@ final class RoomTypeCrudControllerTest extends AbstractEasyAdminControllerTestCa
     public function testAuthorizedAccessToRoomTypeCrudController(): void
     {
         $client = self::createClientWithDatabase();
-        $admin = $this->createAdminUser('admin@test.com', 'password123');
-        $this->loginAsAdmin($client, 'admin@test.com', 'password123');
+        $client->loginUser(new InMemoryUser('admin', 'password', ['ROLE_ADMIN']), 'main');
 
         $client->request('GET', '/admin/hotel-profile/room-type');
         self::getClient($client);
@@ -40,8 +40,7 @@ final class RoomTypeCrudControllerTest extends AbstractEasyAdminControllerTestCa
     public function testGetEntityFqcnReturnsCorrectClass(): void
     {
         $client = self::createClientWithDatabase();
-        $admin = $this->createAdminUser('admin@test.com', 'password123');
-        $this->loginAsAdmin($client, 'admin@test.com', 'password123');
+        $client->loginUser(new InMemoryUser('admin', 'password', ['ROLE_ADMIN']), 'main');
 
         // 通过访问 room-type 页面来间接验证 Controller 使用了正确的实体类
         $crawler = $client->request('GET', '/admin/hotel-profile/room-type');
@@ -59,8 +58,7 @@ final class RoomTypeCrudControllerTest extends AbstractEasyAdminControllerTestCa
     public function testRequiredFieldsValidationOnNewForm(): void
     {
         $client = self::createClientWithDatabase();
-        $admin = $this->createAdminUser('admin@test.com', 'password123');
-        $this->loginAsAdmin($client, 'admin@test.com', 'password123');
+        $client->loginUser(new InMemoryUser('admin', 'password', ['ROLE_ADMIN']), 'main');
 
         $crawler = $client->request('GET', '/admin/hotel-profile/room-type/new');
         self::getClient($client);
@@ -77,8 +75,7 @@ final class RoomTypeCrudControllerTest extends AbstractEasyAdminControllerTestCa
     public function testSearchFunctionalityWorks(): void
     {
         $client = self::createClientWithDatabase();
-        $admin = $this->createAdminUser('admin@test.com', 'password123');
-        $this->loginAsAdmin($client, 'admin@test.com', 'password123');
+        $client->loginUser(new InMemoryUser('admin', 'password', ['ROLE_ADMIN']), 'main');
 
         $client->request('GET', '/admin/hotel-profile/room-type', ['query' => 'test']);
         self::getClient($client);
@@ -88,8 +85,7 @@ final class RoomTypeCrudControllerTest extends AbstractEasyAdminControllerTestCa
     public function testFilterFunctionalityWorks(): void
     {
         $client = self::createClientWithDatabase();
-        $admin = $this->createAdminUser('admin@test.com', 'password123');
-        $this->loginAsAdmin($client, 'admin@test.com', 'password123');
+        $client->loginUser(new InMemoryUser('admin', 'password', ['ROLE_ADMIN']), 'main');
 
         $client->request('GET', '/admin/hotel-profile/room-type', [
             'filters' => [
@@ -151,8 +147,7 @@ final class RoomTypeCrudControllerTest extends AbstractEasyAdminControllerTestCa
     public function testValidationErrors(): void
     {
         $client = self::createClientWithDatabase();
-        $admin = $this->createAdminUser('admin@test.com', 'password123');
-        $this->loginAsAdmin($client, 'admin@test.com', 'password123');
+        $client->loginUser(new InMemoryUser('admin', 'password', ['ROLE_ADMIN']), 'main');
 
         $crawler = $client->request('GET', '/admin/hotel-profile/room-type/new');
         self::getClient($client);

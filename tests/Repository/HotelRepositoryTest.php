@@ -90,9 +90,6 @@ final class HotelRepositoryTest extends AbstractRepositoryTestCase
         $this->assertNotNull($hotel->getId());
     }
 
-    /**
-     * @phpstan-ignore-next-line
-     */
     public function testRemoveWithValidEntityDeletesFromDatabase(): void
     {
         // Arrange
@@ -632,7 +629,6 @@ final class HotelRepositoryTest extends AbstractRepositoryTestCase
 
         // 测试仓库对无效字段名的处理
         $this->expectException(\TypeError::class);
-        // @phpstan-ignore-next-line - 故意传入错误类型用于测试
         $this->repository->findBy([123 => 'invalid']);
     }
 

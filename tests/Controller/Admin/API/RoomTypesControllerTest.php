@@ -11,6 +11,7 @@ use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Tourze\HotelProfileBundle\Controller\Admin\API\RoomTypesController;
 use Tourze\PHPUnitSymfonyWebTest\AbstractWebTestCase;
+use Symfony\Component\Security\Core\User\InMemoryUser;
 
 /**
  * @internal
@@ -31,8 +32,7 @@ final class RoomTypesControllerTest extends AbstractWebTestCase
     public function testAuthorizedAccessWithoutHotelIdReturnsEmptyArray(): void
     {
         $client = self::createClientWithDatabase();
-        $admin = $this->createAdminUser('admin@test.com', 'password123');
-        $this->loginAsAdmin($client, 'admin@test.com', 'password123');
+        $client->loginUser(new InMemoryUser('admin', 'password', ['ROLE_ADMIN']), 'main');
 
         $client->request('GET', '/admin/api/room-types');
         self::getClient($client);
@@ -46,8 +46,7 @@ final class RoomTypesControllerTest extends AbstractWebTestCase
     public function testAuthorizedAccessWithHotelIdReturnsRoomTypes(): void
     {
         $client = self::createClientWithDatabase();
-        $admin = $this->createAdminUser('admin@test.com', 'password123');
-        $this->loginAsAdmin($client, 'admin@test.com', 'password123');
+        $client->loginUser(new InMemoryUser('admin', 'password', ['ROLE_ADMIN']), 'main');
 
         $client->request('GET', '/admin/api/room-types', ['hotelId' => 1]);
         self::getClient($client);
@@ -61,8 +60,7 @@ final class RoomTypesControllerTest extends AbstractWebTestCase
     public function testMethodNotAllowed(string $method): void
     {
         $client = self::createClientWithDatabase();
-        $admin = $this->createAdminUser('admin@test.com', 'password123');
-        $this->loginAsAdmin($client, 'admin@test.com', 'password123');
+        $client->loginUser(new InMemoryUser('admin', 'password', ['ROLE_ADMIN']), 'main');
 
         $this->expectException(MethodNotAllowedHttpException::class);
         $client->request($method, '/admin/api/room-types');
