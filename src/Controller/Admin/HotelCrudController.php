@@ -296,23 +296,42 @@ final class HotelCrudController extends AbstractCrudController
     private function redirectToCrudIndex(?AdminContext $context = null): Response
     {
         // 优先使用referer保留完整上下文
-        $request = $this->requestStack->getCurrentRequest();
-        if ($request) {
-            $referer = $request->headers->get('referer');
-            if ($referer && !str_contains($referer, 'importHotelsForm') && !str_contains($referer, 'downloadImportTemplate')) {
-                return $this->redirect($referer);
-            }
+        $referer = $this->getValidReferer();
+        if ($referer !== null) {
+            return $this->redirect($referer);
         }
 
         // 如果没有有效的referer，使用标准的EasyAdmin重定向方式
-        if ($context) {
+        if ($context !== null) {
             return $this->redirectToRoute('admin', [
                 'crudAction' => 'index',
-                'crudControllerFqcn' => static::class,
+                'crudControllerFqcn' => self::class,
             ]);
         }
 
         // 最后的备用方案
         return $this->redirectToRoute('admin');
+    }
+
+    /**
+     * 获取有效的referer URL
+     */
+    private function getValidReferer(): ?string
+    {
+        $request = $this->requestStack->getCurrentRequest();
+        if ($request === null) {
+            return null;
+        }
+
+        $referer = $request->headers->get('referer');
+        if ($referer === null) {
+            return null;
+        }
+
+        if (str_contains($referer, 'importHotelsForm') || str_contains($referer, 'downloadImportTemplate')) {
+            return null;
+        }
+
+        return $referer;
     }
 }
