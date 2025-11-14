@@ -57,6 +57,5 @@
     "psr-4": {
       "Tourze\\HotelProfileBundle\\Tests\\": "tests"
     }
-  },
-  "version": "1.0.0"
+  }
 }
