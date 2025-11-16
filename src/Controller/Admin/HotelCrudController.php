@@ -10,6 +10,8 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Exception\ForbiddenActionException;
+use EasyCorp\Bundle\EasyAdminBundle\Security\Permission;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\CollectionField;
@@ -40,6 +42,37 @@ final class HotelCrudController extends AbstractCrudController
     public static function getEntityFqcn(): string
     {
         return Hotel::class;
+    }
+
+    /**
+     * 覆盖父类方法修复 EasyAdmin v4.27 bug：
+     * AdminContext::getEntity() 在 INDEX 页面可能返回 null
+     *
+     * @see https://github.com/EasyCorp/EasyAdminBundle/issues/6847
+     */
+    public function index(AdminContext $context)
+    {
+        //  修复EasyAdmin bug: INDEX页面context->getEntity()可能返回null
+        // 但类型声明为非nullable，需使用try-catch捕获TypeError
+        try {
+            $entity = $context->getEntity();
+            $entityFqcn = $entity->getFqcn();
+        } catch (\TypeError) {
+            // 当getEntity()实际返回null时，getFqcn()会抛出TypeError
+            $entityFqcn = self::getEntityFqcn();
+        }
+
+        // 使用安全的entity FQCN进行权限检查
+        if (!$this->isGranted(Permission::EA_EXECUTE_ACTION, [
+            'action' => Action::INDEX,
+            'entity' => null,
+            'entityFqcn' => $entityFqcn
+        ])) {
+            throw new ForbiddenActionException($context);
+        }
+
+        // 调用父类方法继续处理
+        return parent::index($context);
     }
 
     public function configureCrud(Crud $crud): Crud
