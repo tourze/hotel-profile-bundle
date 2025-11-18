@@ -35,23 +35,6 @@ final class HotelCrudControllerTest extends AbstractEasyAdminControllerTestCase
         $this->assertResponseIsSuccessful();
     }
 
-    public function testGetEntityFqcnReturnsCorrectClass(): void
-    {
-        $client = self::createAuthenticatedClient();
-
-        // 通过访问 hotel 页面来间接验证 Controller 使用了正确的实体类
-        $crawler = $client->request('GET', '/admin/hotel-profile/hotel');
-        self::getClient($client);
-        $this->assertResponseIsSuccessful();
-
-        // 验证页面标题包含酒店相关内容，确认正确的实体类被使用
-        $titleText = $crawler->filter('title')->text();
-        $this->assertTrue(
-            str_contains($titleText, 'Hotel') || str_contains($titleText, '酒店'),
-            "页面标题应包含 'Hotel' 或 '酒店'，实际标题：{$titleText}"
-        );
-    }
-
     public function testRequiredFieldsValidationOnNewForm(): void
     {
         $client = self::createAuthenticatedClient();

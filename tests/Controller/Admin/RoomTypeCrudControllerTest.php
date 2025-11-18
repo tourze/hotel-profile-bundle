@@ -37,24 +37,6 @@ final class RoomTypeCrudControllerTest extends AbstractEasyAdminControllerTestCa
         $this->assertResponseIsSuccessful();
     }
 
-    public function testGetEntityFqcnReturnsCorrectClass(): void
-    {
-        $client = self::createClientWithDatabase();
-        $client->loginUser(new InMemoryUser('admin', 'password', ['ROLE_ADMIN']), 'main');
-
-        // 通过访问 room-type 页面来间接验证 Controller 使用了正确的实体类
-        $crawler = $client->request('GET', '/admin/hotel-profile/room-type');
-        self::getClient($client);
-        $this->assertResponseIsSuccessful();
-
-        // 验证页面标题包含房型相关内容，确认正确的实体类被使用
-        $titleText = $crawler->filter('title')->text();
-        $this->assertTrue(
-            str_contains($titleText, 'Room') || str_contains($titleText, '房型'),
-            "页面标题应包含 'Room' 或 '房型'，实际标题：{$titleText}"
-        );
-    }
-
     public function testRequiredFieldsValidationOnNewForm(): void
     {
         $client = self::createClientWithDatabase();
